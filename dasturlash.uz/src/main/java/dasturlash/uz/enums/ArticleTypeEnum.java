@@ -1,4 +1,4 @@
-package dasturlash.uz.dtos;
+package dasturlash.uz.enums;
 
 public enum ArticleTypeEnum {
     ASOSIY("Asosiy", "Основной", "Main"),

@@ -1,4 +1,4 @@
-package dasturlash.uz.dtos;
+package dasturlash.uz.enums;
 
 public enum CategoryEnum {
     O_UZBEKISTON("O'zbekiston", "Узбекистан", "Uzbekistan"),
