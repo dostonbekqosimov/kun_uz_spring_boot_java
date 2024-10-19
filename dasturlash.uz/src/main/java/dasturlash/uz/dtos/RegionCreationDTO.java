@@ -8,8 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ArticleTypeCreationDTO {
-
+public class RegionCreationDTO {
     @NotNull(message = "orderNumber cannot be null")
     private Integer orderNumber;
     @NotBlank(message = "nameUz cannot be empty")

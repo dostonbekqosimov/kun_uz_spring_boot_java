@@ -4,4 +4,6 @@ import dasturlash.uz.entity.ArticleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ArticleTypeRepository extends JpaRepository<ArticleType, Long> {
+
+    boolean existsByNameUzOrNameRuOrNameEn(String nameUz, String nameRu, String nameEn);
 }
