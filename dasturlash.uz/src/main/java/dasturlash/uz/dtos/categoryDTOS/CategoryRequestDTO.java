@@ -1,4 +1,5 @@
-package dasturlash.uz.dtos.regionDTOs;
+package dasturlash.uz.dtos.categoryDTOS;
+
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -6,9 +7,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
-public class RegionCreationDTO {
+@Getter
+public class CategoryRequestDTO {
+
     @NotNull(message = "orderNumber cannot be null")
     private Integer orderNumber;
     @NotBlank(message = "nameUz cannot be empty")

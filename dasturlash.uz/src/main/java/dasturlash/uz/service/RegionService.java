@@ -1,7 +1,7 @@
 package dasturlash.uz.service;
 
 import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
-import dasturlash.uz.dtos.regionDTOs.RegionCreationDTO;
+import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
 import dasturlash.uz.entity.Region;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
@@ -27,7 +27,7 @@ public class RegionService {
     private final ModelMapper modelMapper;
     
 
-    public RegionResponseDTO create(@Valid RegionCreationDTO creationDTO) {
+    public RegionResponseDTO create(@Valid RegionRequestDTO creationDTO) {
 
         // check if the region type exists
         existsByAnyName(creationDTO.getNameUz(), creationDTO.getNameRu(), creationDTO.getNameEn());
@@ -69,8 +69,8 @@ public class RegionService {
     }
 
 
-    public void createRegions(List<RegionCreationDTO> regionRequestDTOs) {
-        for (RegionCreationDTO regionRequestDTO : regionRequestDTOs) {
+    public void createRegions(List<RegionRequestDTO> regionRequestDTOs) {
+        for (RegionRequestDTO regionRequestDTO : regionRequestDTOs) {
             Region region = modelMapper.map(regionRequestDTO, Region.class);
             region.setCreatedDate(LocalDateTime.now());
             region.setVisible(true);

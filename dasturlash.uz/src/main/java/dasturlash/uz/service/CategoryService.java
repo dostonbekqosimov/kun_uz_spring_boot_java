@@ -1,7 +1,7 @@
 package dasturlash.uz.service;
 
 import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
-import dasturlash.uz.dtos.categoryDTOS.CategoryCreationDTO;
+import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
 import dasturlash.uz.entity.Category;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
@@ -27,7 +27,7 @@ public class CategoryService {
     private final ModelMapper modelMapper;
 
 
-    public CategoryResponseDTO create(@Valid CategoryCreationDTO creationDTO) {
+    public CategoryResponseDTO create(@Valid CategoryRequestDTO creationDTO) {
 
         // check if the category type exists
         existsByAnyName(creationDTO.getNameUz(), creationDTO.getNameRu(), creationDTO.getNameEn());

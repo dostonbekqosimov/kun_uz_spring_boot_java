@@ -3,8 +3,10 @@ package dasturlash.uz.service;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.entity.ArticleType;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.repository.ArticleTypeProjection;
 import dasturlash.uz.repository.ArticleTypeRepository;
 import org.modelmapper.ModelMapper;
 
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +50,7 @@ public class ArticleTypeService {
 
     public PageImpl<ArticleTypeResponseDTO> getAll(Integer page, Integer size) {
         Pageable pageRequest = PageRequest.of(page, size);
-        Page<ArticleType> articleTypePage = articleTypeRepository.findAll(pageRequest);
+        Page<ArticleType> articleTypePage = articleTypeRepository.findAllByVisibleTrue(pageRequest);
 
         if (articleTypePage.isEmpty()) {
             throw new DataNotFoundException("No article types found");
@@ -65,23 +68,65 @@ public class ArticleTypeService {
     public ArticleTypeResponseDTO updateById(Long id, ArticleTypeRequestDTO requestDTO) {
 
         // check if it exists
-        isExist(id);
-
         // fetch data
-        ArticleType existingArticleType = articleTypeRepository.findById(id).get();
-
-
-        // check if any fields exist
-
+        ArticleType existingArticleType = getById(id);
 
         // mapping
         modelMapper.map(requestDTO, existingArticleType);
 
         // saving into database
-       return modelMapper.map(articleTypeRepository.save(existingArticleType), ArticleTypeResponseDTO.class);
+        return modelMapper.map(articleTypeRepository.save(existingArticleType), ArticleTypeResponseDTO.class);
 
+    }
 
+    public Boolean deleteById(Long id) {
 
+        Integer result = articleTypeRepository.changeVisible(id);
+
+        return result > 0;
+
+    }
+
+    // old thing you should check this at home
+//    public List<ArticleTypeResponseDTO> getByLang(LanguageEnum lang) {
+//
+////        List<ArticleType> articleTypeList = articleTypeRepository.findAll();
+////        List<ArticleTypeResponseDTO> resultList = new ArrayList<>();
+////
+////        for (ArticleType articleType : articleTypeList) {
+////            ArticleTypeResponseDTO dto = new ArticleTypeResponseDTO();
+////            dto.setId(articleType.getId());
+////            dto.setOrderNumber(articleType.getOrderNumber());
+////
+////            // Set the name based on the provided language
+////            String name = switch (lang) {
+////                case uz -> articleType.getNameUz();
+////                case ru -> articleType.getNameRu();
+////                case en -> articleType.getNameEn();
+////                default -> throw new IllegalArgumentException("Unsupported language: " + lang);
+////            };
+////
+////            // Only add to result list if the name is not null or empty
+////            if (name != null && !name.isEmpty()) {
+////                dto.setName(name);
+////                resultList.add(dto);
+////            }
+////        }
+////
+////        return resultList;
+//
+//        return articleTypeRepository.findAllVisibleByLanguageOrdered(lang)
+//                .stream()
+//                .map(articleType -> modelMapper.map(articleType, ArticleTypeResponseDTO.class)).toList();
+//
+//    }
+
+    public List<ArticleTypeProjection> getVisibleArticleTypesByLanguageOrdered(LanguageEnum lang) {
+        List<ArticleTypeProjection> result = articleTypeRepository.findAllVisibleByLanguageOrdered(lang);
+        if (result.isEmpty()) {
+            throw new DataNotFoundException("No data found");
+        }
+        return result;
     }
 
     public void existsByAnyName(String nameUz, String nameRu, String nameEn) {
@@ -91,11 +136,9 @@ public class ArticleTypeService {
         }
     }
 
-    public void isExist(Long id) {
-        boolean isExist = articleTypeRepository.existsById(id);
-        if (!isExist) {
-            throw new DataNotFoundException("Article type with id: " + id + " not found");
-        }
+
+    public ArticleType getById(Long id) {
+        return articleTypeRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Article type with id: " + id + " not found"));
     }
 
 
