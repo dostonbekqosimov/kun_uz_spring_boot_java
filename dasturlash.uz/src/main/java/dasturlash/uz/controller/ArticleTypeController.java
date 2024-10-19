@@ -37,6 +37,14 @@ public class ArticleTypeController {
 
     }
 
+    // Get by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+
+        return ResponseEntity.ok().body(articleTypeService.getArticleTypeById(id));
+    }
+
+
     // Update by ID
     @PutMapping("/{id}")
     public ResponseEntity<?> updateById(@PathVariable("id") Long id,
@@ -52,9 +60,9 @@ public class ArticleTypeController {
     }
 
     // Get by lang
-    @GetMapping
+    @GetMapping("/lang")
     public ResponseEntity<List<ArticleTypeProjection>> getVisibleArticleTypes(
-            @RequestParam(name = "lang", defaultValue = "UZ") LanguageEnum lang) {
+            @RequestHeader(name = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
         List<ArticleTypeProjection> articleTypes =
                 articleTypeService.getVisibleArticleTypesByLanguageOrdered(lang);
         return ResponseEntity.ok(articleTypes);

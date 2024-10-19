@@ -12,7 +12,7 @@ public class ArticleResponseWithLangDTO {
     private Long id;
     private Integer orderNumber;
     private String name;
-    private Boolean visible;
-    private LocalDateTime createdDate;
+
+
 
 }

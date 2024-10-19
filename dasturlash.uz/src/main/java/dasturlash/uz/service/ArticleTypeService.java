@@ -32,6 +32,13 @@ public class ArticleTypeService {
 
     public ArticleTypeResponseDTO create(ArticleTypeRequestDTO creationDTO) {
 
+        // check if the article type order number exist
+        boolean orderNumberExists = articleTypeRepository.existsByOrderNumber(creationDTO.getOrderNumber());
+        if (!orderNumberExists) {
+            throw new DataExistsException("Article Type with order number: " + creationDTO.getOrderNumber() + " exists");
+        }
+
+
         // check if the article type exists
         existsByAnyName(creationDTO.getNameUz(), creationDTO.getNameRu(), creationDTO.getNameEn());
 
@@ -71,6 +78,12 @@ public class ArticleTypeService {
         // fetch data
         ArticleType existingArticleType = getById(id);
 
+        // check if the article type order number exist
+        boolean orderNumberExists = articleTypeRepository.existsByOrderNumber(requestDTO.getOrderNumber());
+        if (!orderNumberExists) {
+            throw new DataExistsException("Article Type with order number: " + requestDTO.getOrderNumber() + " exists");
+        }
+
         // mapping
         modelMapper.map(requestDTO, existingArticleType);
 
@@ -87,6 +100,15 @@ public class ArticleTypeService {
 
     }
 
+    public ArticleTypeResponseDTO getArticleTypeById(Long id) {
+
+        ArticleType articleType = getById(id);
+
+        if (!articleType.getVisible()) {
+            throw new DataNotFoundException("No data found with id: " + id);
+        }
+        return modelMapper.map(articleType, ArticleTypeResponseDTO.class);
+    }
     // old thing you should check this at home
 //    public List<ArticleTypeResponseDTO> getByLang(LanguageEnum lang) {
 //
@@ -122,7 +144,7 @@ public class ArticleTypeService {
 //    }
 
     public List<ArticleTypeProjection> getVisibleArticleTypesByLanguageOrdered(LanguageEnum lang) {
-        List<ArticleTypeProjection> result = articleTypeRepository.findAllVisibleByLanguageOrdered(lang);
+        List<ArticleTypeProjection> result = articleTypeRepository.findAllVisibleByLanguageOrdered(lang.name());
         if (result.isEmpty()) {
             throw new DataNotFoundException("No data found");
         }
@@ -138,7 +160,8 @@ public class ArticleTypeService {
 
 
     public ArticleType getById(Long id) {
-        return articleTypeRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Article type with id: " + id + " not found"));
+        return articleTypeRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Article type with id: " + id + " not found"));
     }
 
 

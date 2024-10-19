@@ -18,5 +18,5 @@ public class ArticleTypeResponseDTO {
     private Boolean visible;
     private LocalDateTime createdDate;
 
-    private String name;
+
 }

@@ -3,6 +3,7 @@ package dasturlash.uz.repository;
 import dasturlash.uz.entity.ArticleType;
 import dasturlash.uz.enums.LanguageEnum;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,12 +26,16 @@ public interface ArticleTypeRepository extends JpaRepository<ArticleType, Long> 
     @Query("UPDATE ArticleType at SET at.visible = false WHERE at.id = :id")
     Integer changeVisible(Long id);
 
-    @Query("SELECT at.id as id, at.orderNumber as orderNumber, " +
-           "CASE WHEN :lang = dasturlash.uz.enums.LanguageEnum.UZ THEN at.nameUz " +
-           "     WHEN :lang = dasturlash.uz.enums.LanguageEnum.RU THEN at.nameRu " +
-           "     WHEN :lang = dasturlash.uz.enums.LanguageEnum.EN THEN at.nameEn END AS name, " +
-           "FROM ArticleType at " +
-           "WHERE at.visible = true " +
-           "ORDER BY at.orderNumber")
-    List<ArticleTypeProjection> findAllVisibleByLanguageOrdered(@Param("lang") LanguageEnum lang);
+    @Query(value = "select id as id , order_number as orderNumber, " +
+                   "       case ?1 " +
+                   "           when 'uz' then name_uz " +
+                   "           when 'en' then name_en " +
+                   "        else name_ru " +
+                   "        end as name " +
+                   "From article_types " +
+                   " where visible is true  " +
+                   " order by order_number;", nativeQuery = true)
+    List<ArticleTypeProjection> findAllVisibleByLanguageOrdered(String lang);
+
+    boolean existsByOrderNumber(@NotNull(message = "orderNumber cannot be null") Integer orderNumber);
 }
