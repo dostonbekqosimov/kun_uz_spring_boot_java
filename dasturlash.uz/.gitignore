@@ -7,7 +7,7 @@ target/
 
 
 # Ignore talablar.txt
-../talablar.txt
+talablar.txt
 
 ### STS ###
 .apt_generated
