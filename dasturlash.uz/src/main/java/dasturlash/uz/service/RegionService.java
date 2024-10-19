@@ -1,10 +1,7 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.CategoryCreationDTO;
-import dasturlash.uz.dtos.RegionResponseDTO;
-import dasturlash.uz.dtos.RegionCreationDTO;
-import dasturlash.uz.dtos.RegionResponseDTO;
-import dasturlash.uz.entity.Category;
+import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
+import dasturlash.uz.dtos.regionDTOs.RegionCreationDTO;
 import dasturlash.uz.entity.Region;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;

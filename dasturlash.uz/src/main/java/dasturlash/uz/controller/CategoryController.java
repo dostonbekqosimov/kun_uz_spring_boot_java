@@ -1,18 +1,13 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.ArticleTypeResponseDTO;
-import dasturlash.uz.dtos.CategoryCreationDTO;
-import dasturlash.uz.dtos.CategoryResponseDTO;
-import dasturlash.uz.dtos.RegionCreationDTO;
+import dasturlash.uz.dtos.categoryDTOS.CategoryCreationDTO;
+import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
 import dasturlash.uz.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

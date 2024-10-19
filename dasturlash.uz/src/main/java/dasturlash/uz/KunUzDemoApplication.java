@@ -8,6 +8,7 @@ public class KunUzDemoApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(KunUzDemoApplication.class, args);
+		System.out.println("Running...");
 	}
 
 }

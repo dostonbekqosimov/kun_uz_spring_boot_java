@@ -1,4 +1,4 @@
-package dasturlash.uz.dtos;
+package dasturlash.uz.dtos.articleTypeDTOs;
 
 import lombok.Getter;
 import lombok.Setter;

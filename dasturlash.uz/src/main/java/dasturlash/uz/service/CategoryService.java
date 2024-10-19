@@ -1,13 +1,10 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.CategoryResponseDTO;
-import dasturlash.uz.dtos.CategoryCreationDTO;
-import dasturlash.uz.dtos.CategoryResponseDTO;
-import dasturlash.uz.entity.ArticleType;
+import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
+import dasturlash.uz.dtos.categoryDTOS.CategoryCreationDTO;
 import dasturlash.uz.entity.Category;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.repository.ArticleTypeRepository;
 import dasturlash.uz.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

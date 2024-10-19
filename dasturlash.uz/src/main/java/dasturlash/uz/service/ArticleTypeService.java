@@ -1,7 +1,7 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.ArticleTypeCreationDTO;
-import dasturlash.uz.dtos.ArticleTypeResponseDTO;
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.entity.ArticleType;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
@@ -27,7 +27,7 @@ public class ArticleTypeService {
     private final ModelMapper modelMapper;
 
 
-    public ArticleTypeResponseDTO create(ArticleTypeCreationDTO creationDTO) {
+    public ArticleTypeResponseDTO create(ArticleTypeRequestDTO creationDTO) {
 
         // check if the article type exists
         existsByAnyName(creationDTO.getNameUz(), creationDTO.getNameRu(), creationDTO.getNameEn());
@@ -62,10 +62,39 @@ public class ArticleTypeService {
         return new PageImpl<>(responseDTOS, pageRequest, articleTypePage.getTotalElements());
     }
 
+    public ArticleTypeResponseDTO updateById(Long id, ArticleTypeRequestDTO requestDTO) {
+
+        // check if it exists
+        isExist(id);
+
+        // fetch data
+        ArticleType existingArticleType = articleTypeRepository.findById(id).get();
+
+
+        // check if any fields exist
+
+
+        // mapping
+        modelMapper.map(requestDTO, existingArticleType);
+
+        // saving into database
+       return modelMapper.map(articleTypeRepository.save(existingArticleType), ArticleTypeResponseDTO.class);
+
+
+
+    }
+
     public void existsByAnyName(String nameUz, String nameRu, String nameEn) {
         boolean isExist = articleTypeRepository.existsByNameUzOrNameRuOrNameEn(nameUz, nameRu, nameEn);
         if (isExist) {
             throw new DataExistsException("Article Type with name: " + nameUz + " exists");
+        }
+    }
+
+    public void isExist(Long id) {
+        boolean isExist = articleTypeRepository.existsById(id);
+        if (!isExist) {
+            throw new DataNotFoundException("Article type with id: " + id + " not found");
         }
     }
 

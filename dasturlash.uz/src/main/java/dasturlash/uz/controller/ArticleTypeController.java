@@ -1,11 +1,10 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.ArticleTypeCreationDTO;
-import dasturlash.uz.dtos.ArticleTypeResponseDTO;
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.service.ArticleTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ public class ArticleTypeController {
 
     // Add new Article Type
     @PostMapping({"", "/"})
-    public ResponseEntity<?> createArticleType(@RequestBody @Valid ArticleTypeCreationDTO creationDTO) {
+    public ResponseEntity<?> createArticleType(@RequestBody @Valid ArticleTypeRequestDTO creationDTO) {
 
         return ResponseEntity.status(201).body(articleTypeService.create(creationDTO));
 
@@ -33,4 +32,14 @@ public class ArticleTypeController {
         return ResponseEntity.ok().body(articleTypeService.getAll(page - 1, size));
 
     }
+
+    // Update by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateById(@PathVariable("id") Long id,
+                                        @RequestBody ArticleTypeRequestDTO requestDTO) {
+
+        return ResponseEntity.ok().body(articleTypeService.updateById(id, requestDTO));
+    }
+
+
 }

@@ -1,9 +1,7 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.ArticleTypeCreationDTO;
-import dasturlash.uz.dtos.ArticleTypeResponseDTO;
-import dasturlash.uz.dtos.RegionCreationDTO;
-import dasturlash.uz.dtos.RegionResponseDTO;
+import dasturlash.uz.dtos.regionDTOs.RegionCreationDTO;
+import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
 import dasturlash.uz.service.RegionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
