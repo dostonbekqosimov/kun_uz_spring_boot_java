@@ -4,8 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-talablar.txt
 
+
+# Ignore talablar.txt
+../talablar.txt
 
 ### STS ###
 .apt_generated
