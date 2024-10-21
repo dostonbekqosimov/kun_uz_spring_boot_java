@@ -1,10 +1,15 @@
 package dasturlash.uz.service;
 
+import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
+import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
+import dasturlash.uz.entity.Category;
 import dasturlash.uz.entity.Region;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.repository.CustomMapperInterface;
 import dasturlash.uz.repository.RegionRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,10 +83,59 @@ public class RegionService {
         }
     }
 
+    public RegionResponseDTO getRegionById(Long id) {
+        
+        Region region = getById(id);
+
+      
+        return modelMapper.map(region, RegionResponseDTO.class);
+    }
+
+    public RegionResponseDTO updateById(Long id, RegionRequestDTO requestDTO) {
+
+        // check if it exists
+        // fetch data
+        Region existingRegion = getById(id);
+
+        // check if the article type order number exist
+        boolean orderNumberExists = regionRepository.existsByOrderNumber(requestDTO.getOrderNumber());
+        if (!orderNumberExists) {
+            throw new DataExistsException("Region with order number: " + requestDTO.getOrderNumber() + " exists");
+        }
+
+        // mapping
+        modelMapper.map(requestDTO, existingRegion);
+
+        // saving into database
+        return modelMapper.map(regionRepository.save(existingRegion), RegionResponseDTO.class);
+    }
+
+    public Boolean deleteById(Long id) {
+
+        Integer result = regionRepository.changeVisible(id);
+
+        return result > 0;
+
+    }
+
+    public List<CustomMapperInterface> getVisibleRegionsByLanguageOrdered(LanguageEnum lang) {
+
+        List<CustomMapperInterface> result = regionRepository.findAllVisibleByLanguageOrdered(lang.name());
+        if (result.isEmpty()) {
+            throw new DataNotFoundException("No data found");
+        }
+        return result;
+    }
+
     public void existsByAnyName(String nameUz, String nameRu, String nameEn) {
         boolean isExist = regionRepository.existsByNameUzOrNameRuOrNameEn(nameUz, nameRu, nameEn);
         if (isExist) {
             throw new DataExistsException("Region with name: " + nameUz + " exists");
         }
+    }
+
+    public Region getById(Long id) {
+        return regionRepository.findByIdAndVisibleTrue(id)
+                .orElseThrow(() -> new DataNotFoundException("Region with id: " + id + " not found"));
     }
 }

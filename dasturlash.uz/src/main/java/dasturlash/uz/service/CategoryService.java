@@ -3,8 +3,10 @@ package dasturlash.uz.service;
 import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
 import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
 import dasturlash.uz.entity.Category;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.repository.CustomMapperInterface;
 import dasturlash.uz.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,7 @@ public class CategoryService {
         categoryRepository.save(newCategory);
 
         return modelMapper.map(newCategory, CategoryResponseDTO.class);
-        
+
     }
 
     public PageImpl<CategoryResponseDTO> getAll(Integer page, Integer size) {
@@ -65,10 +67,63 @@ public class CategoryService {
         return new PageImpl<>(responseDTOS, pageRequest, articleTypePage.getTotalElements());
     }
 
+    public CategoryResponseDTO getCategoryById(Long id) {
+        Category category = getById(id);
+
+        if (!category.getVisible()) {
+            throw new DataNotFoundException("No data found with id: " + id);
+        }
+        return modelMapper.map(category, CategoryResponseDTO.class);
+    }
+
+    public CategoryResponseDTO updateById(Long id, CategoryRequestDTO requestDTO) {
+
+        // check if it exists
+        // fetch data
+        Category existingCategory = getById(id);
+
+        // check if the article type order number exist
+        boolean orderNumberExists = categoryRepository.existsByOrderNumber(requestDTO.getOrderNumber());
+        if (!orderNumberExists) {
+            throw new DataExistsException("Category with order number: " + requestDTO.getOrderNumber() + " exists");
+        }
+
+        // mapping
+        modelMapper.map(requestDTO, existingCategory);
+
+        // saving into database
+        return modelMapper.map(categoryRepository.save(existingCategory), CategoryResponseDTO.class);
+    }
+
+    public Boolean deleteById(Long id) {
+
+        Integer result = categoryRepository.changeVisible(id);
+
+        return result > 0;
+
+    }
+
+    public List<CustomMapperInterface> getVisibleCategoriesByLanguageOrdered(LanguageEnum lang) {
+
+        List<CustomMapperInterface> result = categoryRepository.findAllVisibleByLanguageOrdered(lang.name());
+        if (result.isEmpty()) {
+            throw new DataNotFoundException("No data found");
+        }
+        return result;
+    }
+
     public void existsByAnyName(String nameUz, String nameRu, String nameEn) {
         boolean isExist = categoryRepository.existsByNameUzOrNameRuOrNameEn(nameUz, nameRu, nameEn);
         if (isExist) {
             throw new DataExistsException("Category with name: " + nameUz + " exists");
         }
     }
+
+    public Category getById(Long id) {
+        return categoryRepository.findByIdAndVisibleTrue(id)
+                .orElseThrow(() -> new DataNotFoundException("Category with id: " + id + " not found"));
+    }
+
+
+
 }

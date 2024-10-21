@@ -1,7 +1,10 @@
 package dasturlash.uz.controller;
 
+import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
+import dasturlash.uz.enums.LanguageEnum;
+import dasturlash.uz.repository.CustomMapperInterface;
 import dasturlash.uz.service.RegionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +44,35 @@ public class RegionController {
     public ResponseEntity<String> createRegions(@RequestBody List<RegionRequestDTO> regionRequestDTOs) {
         regionService.createRegions(regionRequestDTOs);
         return ResponseEntity.ok("Regions created successfully");
+    }
+
+    // Get by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+
+        return ResponseEntity.ok().body(regionService.getRegionById(id));
+    }
+
+    // Update by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateById(@PathVariable("id") Long id,
+                                        @RequestBody @Valid RegionRequestDTO requestDTO) {
+
+        return ResponseEntity.ok().body(regionService.updateById(id, requestDTO));
+    }
+
+    // Delete by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(regionService.deleteById(id));
+    }
+
+    // Get by lang
+    @GetMapping("/lang")
+    public ResponseEntity<List<CustomMapperInterface>> getVisibleRegionsByLang(
+            @RequestHeader(name = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        List<CustomMapperInterface> articleTypes =
+                regionService.getVisibleRegionsByLanguageOrdered(lang);
+        return ResponseEntity.ok(articleTypes);
     }
 }

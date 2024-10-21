@@ -1,7 +1,6 @@
 package dasturlash.uz.repository;
 
 import dasturlash.uz.entity.ArticleType;
-import dasturlash.uz.enums.LanguageEnum;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +33,9 @@ public interface ArticleTypeRepository extends JpaRepository<ArticleType, Long> 
                    "From article_types " +
                    " where visible is true  " +
                    " order by order_number;", nativeQuery = true)
-    List<ArticleTypeProjection> findAllVisibleByLanguageOrdered(String lang);
+    List<CustomMapperInterface> findAllVisibleByLanguageOrdered(String lang);
 
     boolean existsByOrderNumber(@NotNull(message = "orderNumber cannot be null") Integer orderNumber);
+
+    Optional<ArticleType> findByIdAndVisibleTrue(Long id);
 }

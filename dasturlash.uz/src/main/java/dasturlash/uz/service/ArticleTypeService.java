@@ -6,7 +6,7 @@ import dasturlash.uz.entity.ArticleType;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.repository.ArticleTypeProjection;
+import dasturlash.uz.repository.CustomMapperInterface;
 import dasturlash.uz.repository.ArticleTypeRepository;
 import org.modelmapper.ModelMapper;
 
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -143,8 +142,8 @@ public class ArticleTypeService {
 //
 //    }
 
-    public List<ArticleTypeProjection> getVisibleArticleTypesByLanguageOrdered(LanguageEnum lang) {
-        List<ArticleTypeProjection> result = articleTypeRepository.findAllVisibleByLanguageOrdered(lang.name());
+    public List<CustomMapperInterface> getVisibleArticleTypesByLanguageOrdered(LanguageEnum lang) {
+        List<CustomMapperInterface> result = articleTypeRepository.findAllVisibleByLanguageOrdered(lang.name());
         if (result.isEmpty()) {
             throw new DataNotFoundException("No data found");
         }
@@ -160,7 +159,7 @@ public class ArticleTypeService {
 
 
     public ArticleType getById(Long id) {
-        return articleTypeRepository.findById(id)
+        return articleTypeRepository.findByIdAndVisibleTrue(id)
                 .orElseThrow(() -> new DataNotFoundException("Article type with id: " + id + " not found"));
     }
 

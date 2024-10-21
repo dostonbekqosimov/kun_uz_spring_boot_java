@@ -3,7 +3,7 @@ package dasturlash.uz.controller;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
-import dasturlash.uz.repository.ArticleTypeProjection;
+import dasturlash.uz.repository.CustomMapperInterface;
 import dasturlash.uz.service.ArticleTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class ArticleTypeController {
     // Update by ID
     @PutMapping("/{id}")
     public ResponseEntity<?> updateById(@PathVariable("id") Long id,
-                                        @RequestBody ArticleTypeRequestDTO requestDTO) {
+                                        @RequestBody @Valid ArticleTypeRequestDTO requestDTO) {
 
         return ResponseEntity.ok().body(articleTypeService.updateById(id, requestDTO));
     }
@@ -61,9 +61,9 @@ public class ArticleTypeController {
 
     // Get by lang
     @GetMapping("/lang")
-    public ResponseEntity<List<ArticleTypeProjection>> getVisibleArticleTypes(
+    public ResponseEntity<List<CustomMapperInterface>> getVisibleArticleTypes(
             @RequestHeader(name = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
-        List<ArticleTypeProjection> articleTypes =
+        List<CustomMapperInterface> articleTypes =
                 articleTypeService.getVisibleArticleTypesByLanguageOrdered(lang);
         return ResponseEntity.ok(articleTypes);
     }

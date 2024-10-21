@@ -1,6 +1,6 @@
 package dasturlash.uz.repository;
 
-public interface ArticleTypeProjection {
+public interface CustomMapperInterface {
     Long getId();
     Integer getOrderNumber();
     String getName();
