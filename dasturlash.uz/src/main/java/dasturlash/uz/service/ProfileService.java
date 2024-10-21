@@ -2,10 +2,13 @@ package dasturlash.uz.service;
 
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
+import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
+import dasturlash.uz.entity.Category;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.DataExistsException;
+import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ProfileRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +25,7 @@ public class ProfileService {
     private final ModelMapper modelMapper;
 
 
-    public ProfileResponseDTO createProfile(@Valid ProfileCreationDTO requestDTO) {
+    public ProfileResponseDTO createProfile(ProfileCreationDTO requestDTO) {
 
 
         // check if profile name or phone exists
@@ -41,10 +44,35 @@ public class ProfileService {
         // saving into database
         profileRepository.save(newProfile);
 
-        // Convert the newly created Profile to ProfileResponseDTO
-
-        //
+        // map
         return modelMapper.map(newProfile, ProfileResponseDTO.class);
+    }
+
+    public ProfileResponseDTO updateProfileByAdmin(Long id, ProfileUpdateDTO requestDTO) {
+
+        // getting data from db and checking
+        Profile existingProfile = getById(id);
+
+        // check if profile name or phone exists
+        existsByEmailOrPhone(requestDTO.getEmail(), requestDTO.getPhone());
+
+        modelMapper.map(requestDTO, existingProfile);
+        if (existingProfile.getEmail() == null) {
+            existingProfile.setEmail(requestDTO.getEmail());
+        }
+        if (existingProfile.getPhone() == null) {
+            existingProfile.setPhone(requestDTO.getPhone());
+        }
+
+        Profile updatedProfile = profileRepository.save(existingProfile);
+
+        return convertToProfileResponseDTO(updatedProfile);
+
+
+    }
+
+    public ProfileResponseDTO updateProfile(Long id, ProfileUpdateDTO requestDTO) {
+        return null;
     }
 
     private void existsByEmailOrPhone(String email, String phone) {
@@ -63,4 +91,15 @@ public class ProfileService {
             }
         }
     }
+
+    public Profile getById(Long id) {
+        return profileRepository.findByIdAndVisibleTrue(id)
+                .orElseThrow(() -> new DataNotFoundException("Profile with id: " + id + " not found"));
+    }
+
+    private ProfileResponseDTO convertToProfileResponseDTO(Profile profile) {
+        return modelMapper.map(profile, ProfileResponseDTO.class);
+    }
+
+
 }

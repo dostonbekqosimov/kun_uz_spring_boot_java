@@ -2,15 +2,13 @@ package dasturlash.uz.controller;
 
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
+import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
 import dasturlash.uz.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/profile")
@@ -23,4 +21,26 @@ public class ProfileController {
     public ResponseEntity<ProfileResponseDTO> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO) {
         return ResponseEntity.status(201).body(profileService.createProfile(requestDTO));
     }
+
+
+    // Update Profile (ADMIN)
+    @PutMapping("/{id}/admin")
+    public ResponseEntity<ProfileResponseDTO> updateProfileByAdmin(
+            @PathVariable Long id,
+            @RequestBody @Valid ProfileUpdateDTO requestDTO) {
+
+        ProfileResponseDTO updatedProfile = profileService.updateProfileByAdmin(id, requestDTO);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
+    // Update Own Profile (USER)
+    @PutMapping("/{id}")
+    public ResponseEntity<ProfileResponseDTO> updateOwnProfile(
+            @PathVariable Long id,
+            @RequestBody @Valid ProfileUpdateDTO requestDTO) {
+
+        ProfileResponseDTO updatedProfile = profileService.updateProfile(id, requestDTO);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
 }

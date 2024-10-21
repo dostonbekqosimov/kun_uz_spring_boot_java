@@ -28,10 +28,10 @@ public class ProfileCreationDTO {
     private String password;
 
     // Role and Status can be empty for the time being.
-//    @NotBlank(message = "Status cannot be empty")
+    // @NotBlank(message = "Status cannot be empty")
     private String status;
 
-//    @NotBlank(message = "Role cannot be empty")
+    //    @NotBlank(message = "Role cannot be empty")
     private String role;
 
     @AssertTrue(message = "Either email or phone must be provided")
