@@ -21,7 +21,12 @@ public class Profile {
     private String phone;
     private String password;
     private Status status;
+    private Boolean visible;
     private Role role;
-    private String photo_id;
+
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "photo_id")  // Store reference to the image in Attach
+    private Attach photo;
 }
