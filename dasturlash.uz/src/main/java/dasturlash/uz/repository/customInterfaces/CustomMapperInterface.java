@@ -1,4 +1,4 @@
-package dasturlash.uz.repository;
+package dasturlash.uz.repository.customInterfaces;
 
 public interface CustomMapperInterface {
     Long getId();

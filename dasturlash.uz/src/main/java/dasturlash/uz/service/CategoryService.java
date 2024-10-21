@@ -6,7 +6,7 @@ import dasturlash.uz.entity.Category;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.repository.CustomMapperInterface;
+import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

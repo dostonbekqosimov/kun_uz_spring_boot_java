@@ -1,10 +1,9 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
-import dasturlash.uz.repository.CustomMapperInterface;
+import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.service.RegionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

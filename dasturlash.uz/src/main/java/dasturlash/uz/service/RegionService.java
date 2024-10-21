@@ -1,15 +1,12 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
-import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
 import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
-import dasturlash.uz.entity.Category;
 import dasturlash.uz.entity.Region;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.repository.CustomMapperInterface;
+import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.repository.RegionRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

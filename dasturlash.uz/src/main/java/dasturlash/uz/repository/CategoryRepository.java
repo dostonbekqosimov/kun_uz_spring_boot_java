@@ -1,6 +1,7 @@
 package dasturlash.uz.repository;
 
 import dasturlash.uz.entity.Category;
+import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;

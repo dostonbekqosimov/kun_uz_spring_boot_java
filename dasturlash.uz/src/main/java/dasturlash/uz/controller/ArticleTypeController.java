@@ -3,7 +3,7 @@ package dasturlash.uz.controller;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
-import dasturlash.uz.repository.CustomMapperInterface;
+import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.service.ArticleTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
