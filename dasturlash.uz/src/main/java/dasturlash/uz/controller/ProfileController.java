@@ -33,6 +33,12 @@ public class ProfileController {
         return ResponseEntity.ok(updatedProfile);
     }
 
+    // Get By ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProfileById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(profileService.getProfileById(id));
+    }
+
     // Update Own Profile (USER)
     @PutMapping("/{id}")
     public ResponseEntity<ProfileResponseDTO> updateOwnProfile(

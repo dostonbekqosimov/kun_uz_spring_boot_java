@@ -28,7 +28,7 @@ public class ProfileService {
     public ProfileResponseDTO createProfile(ProfileCreationDTO requestDTO) {
 
 
-        // check if profile name or phone exists
+        // check if profile with name or phone exists
         existsByEmailOrPhone(requestDTO.getEmail(), requestDTO.getPhone());
 
         Profile newProfile = new Profile();
@@ -50,21 +50,17 @@ public class ProfileService {
 
     public ProfileResponseDTO updateProfileByAdmin(Long id, ProfileUpdateDTO requestDTO) {
 
-        // getting data from db and checking
+        // Getting and checking data
         Profile existingProfile = getById(id);
 
-        // check if profile name or phone exists
+        // check if profile with name or phone exists
         existsByEmailOrPhone(requestDTO.getEmail(), requestDTO.getPhone());
 
-        modelMapper.map(requestDTO, existingProfile);
-        if (existingProfile.getEmail() == null) {
-            existingProfile.setEmail(requestDTO.getEmail());
-        }
-        if (existingProfile.getPhone() == null) {
-            existingProfile.setPhone(requestDTO.getPhone());
-        }
+        Profile updatedProfile = covertToProfile(requestDTO, existingProfile);
 
-        Profile updatedProfile = profileRepository.save(existingProfile);
+        // update profile
+        profileRepository.save(updatedProfile);
+
 
         return convertToProfileResponseDTO(updatedProfile);
 
@@ -73,6 +69,14 @@ public class ProfileService {
 
     public ProfileResponseDTO updateProfile(Long id, ProfileUpdateDTO requestDTO) {
         return null;
+    }
+
+    public ProfileResponseDTO getProfileById(Long id) {
+
+        // getting data from db and checking
+        Profile profile = getById(id);
+
+        return convertToProfileResponseDTO(profile);
     }
 
     private void existsByEmailOrPhone(String email, String phone) {
@@ -99,6 +103,37 @@ public class ProfileService {
 
     private ProfileResponseDTO convertToProfileResponseDTO(Profile profile) {
         return modelMapper.map(profile, ProfileResponseDTO.class);
+    }
+
+    private Profile covertToProfile(ProfileUpdateDTO updateDTO, Profile existingProfile) {
+
+
+        existingProfile.setName(updateDTO.getName());
+        existingProfile.setSurname(updateDTO.getSurname());
+        // Only update email if provided, otherwise keep existing email
+        if (updateDTO.getEmail() != null && !updateDTO.getEmail().trim().isEmpty()) {
+            existingProfile.setEmail(updateDTO.getEmail());
+        }
+
+        // Only update phone if provided, otherwise keep existing phone
+        if (updateDTO.getPhone() != null && !updateDTO.getPhone().trim().isEmpty()) {
+            existingProfile.setPhone(updateDTO.getPhone());
+        }
+
+        // Update role if not provided
+        if (updateDTO.getRole() != null) {
+            existingProfile.setRole(updateDTO.getRole());
+
+        }
+
+        // Update status if provided
+        if (updateDTO.getStatus() != null) {
+            existingProfile.setStatus(updateDTO.getStatus());
+        }
+
+        return existingProfile;
+
+
     }
 
 
