@@ -1,11 +1,13 @@
 package dasturlash.uz.controller;
 
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
 import dasturlash.uz.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,15 @@ public class ProfileController {
         return ResponseEntity.ok().body(profileService.getProfileById(id));
     }
 
+    // Get the list of profiles
+    @GetMapping({"", "/"})
+    public ResponseEntity<PageImpl<ProfileResponseDTO>> getAll(@RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                                   @RequestParam(value = "size", defaultValue = "5") Integer size) {
+
+        return ResponseEntity.ok().body(profileService.getAll(page - 1, size));
+
+    }
+
     // Update Own Profile (USER)
     @PutMapping("/{id}")
     public ResponseEntity<ProfileResponseDTO> updateOwnProfile(
@@ -47,6 +58,12 @@ public class ProfileController {
 
         ProfileResponseDTO updatedProfile = profileService.updateProfile(id, requestDTO);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    // Delete by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(profileService.deleteById(id));
     }
 
 }

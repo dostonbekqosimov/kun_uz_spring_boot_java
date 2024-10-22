@@ -1,5 +1,6 @@
 package dasturlash.uz.service;
 
+import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
@@ -13,9 +14,14 @@ import dasturlash.uz.repository.ProfileRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +85,34 @@ public class ProfileService {
         return convertToProfileResponseDTO(profile);
     }
 
+    public PageImpl<ProfileResponseDTO> getAll(Integer page, Integer size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<Profile> profiles = profileRepository.findAllByVisibleTrue(pageRequest);
+
+        if (profiles.isEmpty()) {
+            throw new DataNotFoundException("No profile found");
+        }
+
+        // Convert to DTOs
+        List<ProfileResponseDTO> responseDTOS = profiles.getContent().stream()
+                .map(profile -> modelMapper.map(profile, ProfileResponseDTO.class))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(responseDTOS, pageRequest, profiles.getTotalElements());
+
+
+    }
+
+    public Boolean deleteById(Long id) {
+
+        Integer result = profileRepository.changeVisible(id);
+
+        return result > 0;
+
+    }
+
     private void existsByEmailOrPhone(String email, String phone) {
 
         if (email != null && !email.trim().isEmpty()) {
@@ -95,6 +129,7 @@ public class ProfileService {
             }
         }
     }
+
 
     public Profile getById(Long id) {
         return profileRepository.findByIdAndVisibleTrue(id)
