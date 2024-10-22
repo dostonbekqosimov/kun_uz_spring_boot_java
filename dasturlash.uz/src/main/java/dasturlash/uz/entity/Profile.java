@@ -20,9 +20,12 @@ public class Profile {
     private String email;
     private String phone;
     private String password;
-    private Status status;
     private Boolean visible;
+
+    @Enumerated(value = EnumType.STRING)
     private Role role;
+    @Enumerated(value = EnumType.STRING)
+    private Status status;
 
     private LocalDateTime createdAt;
 

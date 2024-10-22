@@ -2,6 +2,7 @@ package dasturlash.uz.controller;
 
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
+import dasturlash.uz.dtos.profileDTOs.ProfilePhotoUpdateDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
 import dasturlash.uz.service.ProfileService;
@@ -57,6 +58,16 @@ public class ProfileController {
             @RequestBody @Valid ProfileUpdateDTO requestDTO) {
 
         ProfileResponseDTO updatedProfile = profileService.updateProfile(id, requestDTO);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
+    // Update Profile Picture (USER)
+    @PutMapping("/{id}/photo")
+    public ResponseEntity<ProfileResponseDTO> updatePhoto(
+            @PathVariable Long id,
+            @RequestBody @Valid ProfilePhotoUpdateDTO requestDTO) {
+
+        ProfileResponseDTO updatedProfile = profileService.updateProfilePhoto(id, requestDTO);
         return ResponseEntity.ok(updatedProfile);
     }
 

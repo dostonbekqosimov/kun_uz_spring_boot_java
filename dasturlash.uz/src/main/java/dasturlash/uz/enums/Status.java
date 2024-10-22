@@ -2,5 +2,6 @@ package dasturlash.uz.enums;
 
 public enum Status {
     ACTIVE,
-    INACTIVE
+    INACTIVE,
+    IN_REGISTRATION
 }

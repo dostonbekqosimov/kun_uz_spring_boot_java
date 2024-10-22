@@ -2,6 +2,7 @@ package dasturlash.uz.service;
 
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
+import dasturlash.uz.dtos.profileDTOs.ProfilePhotoUpdateDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
 import dasturlash.uz.entity.Category;
@@ -105,6 +106,11 @@ public class ProfileService {
 
     }
 
+    public ProfileResponseDTO updateProfilePhoto(Long id, ProfilePhotoUpdateDTO requestDTO) {
+
+        return null;
+    }
+
     public Boolean deleteById(Long id) {
 
         Integer result = profileRepository.changeVisible(id);
@@ -170,6 +176,7 @@ public class ProfileService {
 
 
     }
+
 
 
 }
