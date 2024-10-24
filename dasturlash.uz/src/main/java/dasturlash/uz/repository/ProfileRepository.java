@@ -25,4 +25,10 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Transactional
     @Query("UPDATE Profile at SET at.visible = false WHERE at.id = :id")
     Integer changeVisible(Long id);
+
+    boolean existsByEmailAndVisibleTrue(String email);
+
+    boolean existsByPhoneAndVisibleTrue(String phone);
+
+    Optional<Profile> findByEmailAndVisibleTrue(String email);
 }

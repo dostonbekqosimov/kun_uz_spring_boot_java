@@ -28,6 +28,8 @@ public class Profile {
     private Status status;
 
     private LocalDateTime createdAt;
+    private LocalDateTime emailConfirmationDeadline;
+    private Integer resendAttempts = 0;
 
     @ManyToOne
     @JoinColumn(name = "photo_id")  // Store reference to the image in Attach

@@ -34,7 +34,7 @@ public class EmailSendingService {
             throw new RuntimeException(e);
         }
 
-        return "Mail was send";
+        return "Mail was sent";
     }
 
 }
