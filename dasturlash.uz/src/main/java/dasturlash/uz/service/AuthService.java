@@ -23,7 +23,7 @@ import java.util.Optional;
 public class AuthService {
 
 
-    @Value("${registration.confirmation.deadline.seconds}")
+    @Value("${registration.confirmation.deadline.minutes}")
     private int confirmationDeadlineMinutes;
     @Value("${registration.max.resend.attempts}")
     private int maxResendAttempts;
@@ -46,7 +46,7 @@ public class AuthService {
 
         entity.setRole(Role.USER);
         entity.setVisible(Boolean.TRUE);
-        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusSeconds(confirmationDeadlineMinutes));
+        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusMinutes(confirmationDeadlineMinutes));
         entity.setStatus(Status.IN_REGISTRATION);
         profileRepository.save(entity);
 
@@ -63,7 +63,7 @@ public class AuthService {
         messageDTO.setSubject("Complete your registration");
         messageDTO.setText(emailContent);
 
-        emailSendingService.sendMimeMessage(messageDTO);
+        emailSendingService.sendMimeMessage(messageDTO, entity);
 
         return "Email was sent";
     }
@@ -99,10 +99,6 @@ public class AuthService {
             throw new DataNotFoundException("Profile not found");
         }
 
-        if (optional.get().getStatus() == Status.ACTIVE){
-
-        }
-
         Profile entity = optional.get();
 
         // Check if profile is already active
@@ -114,11 +110,11 @@ public class AuthService {
         if (entity.getResendAttempts() >= maxResendAttempts) {
             entity.setStatus(Status.BLOCKED);
             profileRepository.save(entity);
-            return "Maximum resend attempts exceeded. Please contact support.";
+            throw new DataNotFoundException("Maximum resend attempts exceeded. Please contact support.");
         }
 
         // Reset confirmation deadline and increment resend attempts
-        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusSeconds(confirmationDeadlineMinutes));
+        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusMinutes(confirmationDeadlineMinutes));
         entity.setResendAttempts(entity.getResendAttempts() + 1);
         entity.setStatus(Status.IN_REGISTRATION);
         profileRepository.save(entity);
@@ -136,13 +132,14 @@ public class AuthService {
         messageDTO.setSubject("Registration Confirmation - New Link");
         messageDTO.setText(emailContent);
 
-        emailSendingService.sendMimeMessage(messageDTO);
+        emailSendingService.sendMimeMessage(messageDTO, entity);
 
         return "New confirmation email sent. Please check your inbox.";
     }
 
 
     public String login(String email, String password) {
+
         // Find the user by email
         Optional<Profile> optional = profileRepository.findByEmailAndVisibleTrue(email);
         if (optional.isEmpty()) {

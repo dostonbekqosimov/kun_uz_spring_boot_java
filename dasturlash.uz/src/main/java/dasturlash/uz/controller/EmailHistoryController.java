@@ -1,0 +1,62 @@
+package dasturlash.uz.controller;
+
+import dasturlash.uz.entity.EmailHistory;
+import dasturlash.uz.service.EmailHistoryService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+        import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/emailHistory")
+public class EmailHistoryController {
+
+    @Autowired
+    private EmailHistoryService emailHistoryService;
+
+    // Get EmailHistory by email
+    @GetMapping("/by-email")
+    public ResponseEntity<List<EmailHistory>> getEmailHistoryByEmail(@RequestParam String email) {
+        List<EmailHistory> emailHistoryList = emailHistoryService.getEmailHistoryByEmail(email);
+        if (emailHistoryList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(emailHistoryList);
+    }
+
+    // Get EmailHistory by given date
+    @GetMapping("/by-date")
+    public ResponseEntity<List<EmailHistory>> getEmailHistoryByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
+        List<EmailHistory> emailHistoryList = emailHistoryService.getEmailHistoryByDate(date);
+        if (emailHistoryList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(emailHistoryList);
+    }
+
+    // Get EmailHistory with pagination (Admin)
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<EmailHistory>> getEmailHistoryPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EmailHistory> emailHistoryPage = emailHistoryService.getEmailHistoryWithPagination(pageable);
+
+        if (emailHistoryPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(emailHistoryPage);
+    }
+}
+

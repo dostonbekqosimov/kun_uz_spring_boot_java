@@ -20,7 +20,7 @@ public class EmailHistory {
     @Column(nullable = false)
     private String subject;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", length = 65535)
     private String message;
 
     @Column(nullable = false)
@@ -28,6 +28,7 @@ public class EmailHistory {
 
     private String status; // SUCCESS, FAILED
 
+    @Column(columnDefinition = "TEXT")
     private String errorMessage;
 
     @ManyToOne(fetch = FetchType.LAZY)
