@@ -1,7 +1,6 @@
 package dasturlash.uz.service;
 
-
-import dasturlash.uz.dtos.profileDTOs.MessageDTO;
+import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
@@ -9,10 +8,9 @@ import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ProfileRepository;
+import dasturlash.uz.util.JwtUtil;
 import dasturlash.uz.util.MD5Util;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,137 +19,85 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-
-    @Value("${registration.confirmation.deadline.minutes}")
-    private int confirmationDeadlineMinutes;
-    @Value("${registration.max.resend.attempts}")
-    private int maxResendAttempts;
-
-
     private final ProfileRepository profileRepository;
-    private final EmailSendingService emailSendingService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailAuthService emailAuthService;
+    private final SmsAuthService smsAuthService;
 
     public String registration(RegistrationDTO dto) {
-        // check email exists
-        existsByEmailOrPhone(dto.getEmail(), dto.getPhone());
+        String login = dto.getLogin();
+        boolean isEmail = login.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+        boolean isPhoneNumber = login.matches("^\\+?[0-9]{10,15}$");
 
-        Profile entity = new Profile();
-        entity.setName(dto.getName());
-        entity.setEmail(dto.getEmail());
-        entity.setPassword(MD5Util.getMd5(dto.getPassword()));
-        entity.setSurname(dto.getSurname());
-        entity.setCreatedAt(LocalDateTime.now());
+        if (isEmail) {
+            existsByEmailOrPhone(login, null);
+        } else if (isPhoneNumber) {
+            existsByEmailOrPhone(null, login);
+        } else {
+            throw new IllegalArgumentException("Invalid login format. Please provide a valid email or phone number.");
+        }
 
-        entity.setRole(Role.USER);
-        entity.setVisible(Boolean.TRUE);
-        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusMinutes(confirmationDeadlineMinutes));
-        entity.setStatus(Status.IN_REGISTRATION);
-        profileRepository.save(entity);
+        Profile profile = new Profile();
+        profile.setName(dto.getName());
+        profile.setPassword(MD5Util.getMd5(dto.getPassword()));
+        profile.setSurname(dto.getSurname());
+        profile.setCreatedAt(LocalDateTime.now());
+        profile.setRole(Role.USER);
+        profile.setVisible(Boolean.TRUE);
+        profile.setStatus(Status.IN_REGISTRATION);
 
-        // Generate email content using the template service
-        String emailContent = emailTemplateService.getRegistrationEmailTemplate(
-                entity.getId(),
-                entity.getName(),
-                confirmationDeadlineMinutes,
-                maxResendAttempts
-        );
 
-        MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setToAccount(dto.getEmail());
-        messageDTO.setSubject("Complete your registration");
-        messageDTO.setText(emailContent);
-
-        emailSendingService.sendMimeMessage(messageDTO, entity);
-
-        return "Email was sent";
+        return isEmail ?
+                emailAuthService.registerViaEmail(dto, profile) :
+                smsAuthService.registerViaSms(dto, profile);
+    }
+    public String registrationConfirm(Long id) {
+        return emailAuthService.confirmEmail(id);
     }
 
-    public String registrationConfirm(Long id) {
-
-        Optional<Profile> optional = profileRepository.findByIdAndVisibleTrue(id);
-        if (optional.isEmpty()) {
-            return "Not Completed";
-        }
-
-        Profile entity = optional.get();
-
-        // Check if confirmation period has expired
-        if (LocalDateTime.now().isAfter(entity.getEmailConfirmationDeadline())) {
-            entity.setStatus(Status.IN_REGISTRATION);
-            profileRepository.save(entity);
-            return "Confirmation link has expired. Please request a new confirmation email.";
-        }
-
-        if (!entity.getStatus().equals(Status.IN_REGISTRATION)) {
-            return "Not Completed";
-        }
-
-        entity.setStatus(Status.ACTIVE);
-        profileRepository.save(entity);
-        return "Completed";
+    public String registrationConfirmViaSms(String phone, String code) {
+        return smsAuthService.confirmSms(phone, code);
     }
 
     public String resendConfirmationEmail(Long id) {
-        Optional<Profile> optional = profileRepository.findByIdAndVisibleTrue(id);
-        if (optional.isEmpty()) {
-            throw new DataNotFoundException("Profile not found");
-        }
+        return emailAuthService.resendEmailConfirmation(id);
+    }
 
-        Profile entity = optional.get();
-
-        // Check if profile is already active
-        if (entity.getStatus().equals(Status.ACTIVE)) {
-            return "Profile is already active";
-        }
-
-        // Check if profile has exceeded maximum resend attempts
-        if (entity.getResendAttempts() >= maxResendAttempts) {
-            entity.setStatus(Status.BLOCKED);
-            profileRepository.save(entity);
-            throw new DataNotFoundException("Maximum resend attempts exceeded. Please contact support.");
-        }
-
-        // Reset confirmation deadline and increment resend attempts
-        entity.setEmailConfirmationDeadline(LocalDateTime.now().plusMinutes(confirmationDeadlineMinutes));
-        entity.setResendAttempts(entity.getResendAttempts() + 1);
-        entity.setStatus(Status.IN_REGISTRATION);
-        profileRepository.save(entity);
-
-        // Send new confirmation email
-        String emailContent = emailTemplateService.getRegistrationEmailTemplate(
-                entity.getId(),
-                entity.getName(),
-                confirmationDeadlineMinutes,
-                maxResendAttempts - entity.getResendAttempts()  // Pass remaining attempts
-        );
-
-        MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setToAccount(entity.getEmail());
-        messageDTO.setSubject("Registration Confirmation - New Link");
-        messageDTO.setText(emailContent);
-
-        emailSendingService.sendMimeMessage(messageDTO, entity);
-
-        return "New confirmation email sent. Please check your inbox.";
+    public String resendConfirmationSms(String phone) {
+        return smsAuthService.resendSmsVerification(phone);
     }
 
 
-    public String login(String email, String password) {
+    public ProfileResponseDTO login(String login, String password) {
+
+        boolean isEmail = login.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+        boolean isPhoneNumber = login.matches("^\\+?[0-9]{10,15}$");
+
+        if (isEmail) {
+            existsByEmailOrPhone(login, null);
+           return loginByEmail(login, password);
+        } else if (isPhoneNumber) {
+            existsByEmailOrPhone(null, login);
+            return loginByPhone(login, password);
+        } else {
+            throw new IllegalArgumentException("Invalid login format. Please provide a valid email or phone number.");
+        }
+
+    }
+
+    private ProfileResponseDTO loginByPhone(String login, String password) {
 
         // Find the user by email
-        Optional<Profile> optional = profileRepository.findByEmailAndVisibleTrue(email);
+        Optional<Profile> optional = profileRepository.findByPhoneAndVisibleTrue(login);
         if (optional.isEmpty()) {
-            throw new DataNotFoundException("Email not found");
+            throw new DataNotFoundException("Email or password is wrong");
         }
 
         Profile entity = optional.get();
 
         // Check if the password matches
         if (!entity.getPassword().equals(MD5Util.getMd5(password))) {
-            // buyerda aynan nima xatoligini bilintirib qo'ymaslik kerak
-            throw new DataNotFoundException("Invalid password");
+
+            throw new DataNotFoundException("Email or password is wrong");
         }
 
         // Check if the profile is active
@@ -159,8 +105,44 @@ public class AuthService {
             throw new DataNotFoundException("Account is not active");
         }
 
-        // Login successful
-        return "Login successful";
+        ProfileResponseDTO dto = new ProfileResponseDTO();
+        dto.setName(entity.getName());
+        dto.setSurname(entity.getSurname());
+        dto.setEmail(entity.getEmail());
+        dto.setRole(entity.getRole());
+        dto.setJwtToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
+        return dto;
+    }
+
+    private ProfileResponseDTO loginByEmail(String login, String password) {
+
+        // Find the user by email
+        Optional<Profile> optional = profileRepository.findByEmailAndVisibleTrue(login);
+        if (optional.isEmpty()) {
+            throw new DataNotFoundException("Email or password is wrong");
+
+        }
+
+        Profile entity = optional.get();
+
+        // Check if the password matches
+        if (!entity.getPassword().equals(MD5Util.getMd5(password))) {
+            throw new DataNotFoundException("Email or password is wrong");
+
+        }
+
+        // Check if the profile is active
+        if (!entity.getStatus().equals(Status.ACTIVE)) {
+            throw new DataNotFoundException("Account is not active");
+        }
+
+        ProfileResponseDTO dto = new ProfileResponseDTO();
+        dto.setName(entity.getName());
+        dto.setSurname(entity.getSurname());
+        dto.setEmail(entity.getEmail());
+        dto.setRole(entity.getRole());
+        dto.setJwtToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
+        return dto;
     }
 
     private void existsByEmailOrPhone(String email, String phone) {
@@ -179,6 +161,5 @@ public class AuthService {
             }
         }
     }
-
 
 }
