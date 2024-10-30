@@ -82,9 +82,7 @@ public class ProfileService {
 
 
 
-        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
-            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
-        }
+
         return true;
     }
 

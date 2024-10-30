@@ -24,14 +24,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping
-    public ResponseEntity<?> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO,
-                                        @RequestHeader("Authorization") String token) {
-
-
-//        JwtDTO parsedToken = JwtUtil.decode(token);
-//        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
-//            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
-//        }
+    public ResponseEntity<?> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO) {
         return ResponseEntity.status(201).body(profileService.createProfile(requestDTO));
     }
 
@@ -40,13 +33,8 @@ public class ProfileController {
     @PutMapping("/{id}/admin")
     public ResponseEntity<ProfileResponseDTO> updateProfileByAdmin(
             @PathVariable Long id,
-            @RequestBody @Valid ProfileUpdateDTO requestDTO,
-            @RequestHeader("Authorization") String token) {
+            @RequestBody @Valid ProfileUpdateDTO requestDTO) {
 
-        JwtDTO parsedToken = JwtUtil.decode(token);
-        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
-            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
-        }
 
         ProfileResponseDTO updatedProfile = profileService.updateProfileByAdmin(id, requestDTO);
         return ResponseEntity.ok(updatedProfile);

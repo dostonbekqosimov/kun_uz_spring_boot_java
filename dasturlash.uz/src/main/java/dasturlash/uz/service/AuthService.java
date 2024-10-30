@@ -41,7 +41,7 @@ public class AuthService {
         profile.setPassword(MD5Util.getMd5(dto.getPassword()));
         profile.setSurname(dto.getSurname());
         profile.setCreatedAt(LocalDateTime.now());
-        profile.setRole(Role.USER);
+        profile.setRole(Role.ROLE_USER);
         profile.setVisible(Boolean.TRUE);
         profile.setStatus(Status.IN_REGISTRATION);
 
