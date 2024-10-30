@@ -7,6 +7,7 @@ import dasturlash.uz.entity.Profile;
 import dasturlash.uz.entity.SmsHistory;
 import dasturlash.uz.enums.EmailStatus;
 import dasturlash.uz.enums.SmsStatus;
+import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.EmailHistoryRepository;
 import dasturlash.uz.repository.SmsHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +59,10 @@ public class MessageHistoryService {
             history.setAttemptCount(history.getAttemptCount() + 1);
         }
         smsHistoryRepository.save(history);
+    }
+
+    public SmsHistory findLatestSmsHistory(String phoneNumber) {
+        return smsHistoryRepository.findTopByPhoneOrderByCreatedDateDesc(phoneNumber)
+                .orElseThrow(() -> new DataNotFoundException("No SMS history found for phone number: " + phoneNumber));
     }
 }

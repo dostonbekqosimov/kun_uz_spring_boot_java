@@ -1,5 +1,6 @@
 package dasturlash.uz.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,29 +11,28 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.UUID;
 
 @Configuration
 public class SpringSecurityConfig {
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // authentication - Foydalanuvchining identifikatsiya qilish.
-        // Ya'ni berilgan login va parolli user bor yoki yo'qligini aniqlash.
-        String password = UUID.randomUUID().toString();
-        System.out.println("User Password Mazgi: " + password);
 
-        UserDetails user = User.builder()
-                .username("user")
-                .password("{noop}" + password)
-                .roles("USER")
-                .build();
 
         final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(new InMemoryUserDetailsManager(user));
+        authenticationProvider.setUserDetailsService(userDetailsService);
         return authenticationProvider;
     }
 
@@ -46,7 +46,7 @@ public class SpringSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/profile").hasRole("ADMIN")
                     .anyRequest()
                     .authenticated();
-        }).formLogin(Customizer.withDefaults());
+        }).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.csrf(AbstractHttpConfigurer::disable); // csrf yoqilgan
         http.cors(Customizer.withDefaults()); // cors yoqilgan

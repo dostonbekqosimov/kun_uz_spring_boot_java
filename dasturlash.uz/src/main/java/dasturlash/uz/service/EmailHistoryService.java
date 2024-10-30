@@ -21,7 +21,7 @@ public class EmailHistoryService {
     }
 
     public List<EmailHistory> getEmailHistoryByDate(LocalDateTime date) {
-        return emailHistoryRepository.findByCreatedDate(date);
+        return emailHistoryRepository.findByStatus("hello");
     }
 
     public Page<EmailHistory> getEmailHistoryWithPagination(Pageable pageable) {

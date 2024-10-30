@@ -1,18 +1,15 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfilePhotoUpdateDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
-import dasturlash.uz.entity.Category;
+import dasturlash.uz.dtos.JwtDTO;
+import dasturlash.uz.dtos.profileDTOs.*;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.exceptions.ForbiddenException;
 import dasturlash.uz.repository.ProfileRepository;
-import jakarta.validation.Valid;
+import dasturlash.uz.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -44,9 +41,6 @@ public class ProfileService {
         newProfile.setVisible(Boolean.TRUE);
         newProfile.setCreatedAt(LocalDateTime.now());
 
-        if (requestDTO.getRole() == null) {
-            newProfile.setRole(Role.USER);
-        }
 
         // saving into database
         profileRepository.save(newProfile);
@@ -74,14 +68,31 @@ public class ProfileService {
 
     }
 
-    public ProfileResponseDTO updateProfile(Long id, ProfileUpdateDTO requestDTO) {
-        return null;
+    public boolean updateProfileDetail( ProfileUpdateOwnDTO requestDTO, String token) {
+
+
+        JwtDTO parsedToken = JwtUtil.decode(token);
+
+        Profile profile = getByLogin(parsedToken.getLogin());
+
+
+
+
+//        Profile updatedProfile = covertToProfile(requestDTO, requestDTO);
+
+
+
+        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
+            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
+        }
+        return true;
     }
 
     public ProfileResponseDTO getProfileById(Long id) {
 
         // getting data from db and checking
         Profile profile = getById(id);
+
 
         return convertToProfileResponseDTO(profile);
     }
@@ -146,6 +157,10 @@ public class ProfileService {
         return modelMapper.map(profile, ProfileResponseDTO.class);
     }
 
+    public Profile getByLogin(String login) {
+        return profileRepository.findByEmailAndVisibleTrue(login).orElseThrow(() -> new DataNotFoundException("Not Found"));
+    }
+
     private Profile covertToProfile(ProfileUpdateDTO updateDTO, Profile existingProfile) {
 
 
@@ -176,7 +191,6 @@ public class ProfileService {
 
 
     }
-
 
 
 }

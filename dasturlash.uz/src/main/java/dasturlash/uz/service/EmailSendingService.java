@@ -3,6 +3,7 @@ package dasturlash.uz.service;
 import dasturlash.uz.dtos.profileDTOs.MessageDTO;
 import dasturlash.uz.entity.EmailHistory;
 import dasturlash.uz.entity.Profile;
+import dasturlash.uz.enums.EmailStatus;
 import dasturlash.uz.repository.EmailHistoryRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -24,17 +25,16 @@ public class EmailSendingService {
     private String fromAccount;
 
     private final JavaMailSender javaMailSender;
-    private final EmailHistoryRepository emailHistoryRepository;
+    private final MessageHistoryService messageHistoryService;
 
     public String sendMimeMessage(MessageDTO dto, Profile profile) {
 
-        EmailHistory history = new EmailHistory();
-        history.setToAccount(dto.getToAccount());
-        history.setSubject(dto.getSubject());
-        history.setMessage(dto.getText());
-        history.setSentAt(LocalDateTime.now());
-        history.setProfile(profile);
-        history.setStatus("PENDING"); // Set initial status
+        EmailHistory history = messageHistoryService.createEmailHistory(
+                dto.getToAccount(),
+                dto.getSubject(),
+                dto.getText(),
+                profile
+        );
 
 
         try {
@@ -47,15 +47,13 @@ public class EmailSendingService {
             helper.setText(dto.getText(), true);
             javaMailSender.send(msg);
 
-            // Update status to SUCCESS after successful send
-            history.setStatus("SUCCESS");
-            emailHistoryRepository.save(history);
+            // Update status to SENT after successful send
+            messageHistoryService.updateEmailStatus(history, EmailStatus.SENT);
+
 
             return "Mail was sent successfully";
         } catch (MessagingException e) {
-            history.setStatus("FAILED");
-            history.setErrorMessage(e.getMessage());
-            emailHistoryRepository.save(history);
+            messageHistoryService.updateEmailStatus(history, EmailStatus.FAILED);
 
             throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
         }

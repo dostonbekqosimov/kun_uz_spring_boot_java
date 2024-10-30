@@ -1,24 +1,26 @@
 package dasturlash.uz.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import dasturlash.uz.enums.SmsStatus;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 public class SmsHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     private String phone;
     private String message;
-    private String status;
-    private String type;
+
+    @Enumerated(value = EnumType.STRING)
+    private SmsStatus status;
+    private String verificationCode;
+    private Integer attemptCount;
     private LocalDateTime createdDate;
 }

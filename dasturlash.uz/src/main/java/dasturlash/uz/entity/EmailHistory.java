@@ -1,18 +1,20 @@
 package dasturlash.uz.entity;
 
 
-
+import dasturlash.uz.enums.EmailStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "email_history")
 public class EmailHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false)
     private String toAccount;
@@ -26,10 +28,18 @@ public class EmailHistory {
     @Column(nullable = false)
     private LocalDateTime sentAt;
 
-    private String status; // SUCCESS, FAILED
+    @Enumerated(value = EnumType.STRING)
+    private EmailStatus status;
+
+    private Integer attemptCount = 0;
+
 
     @Column(columnDefinition = "TEXT")
     private String errorMessage;
+
+    private LocalDateTime createdDate;
+
+    private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")

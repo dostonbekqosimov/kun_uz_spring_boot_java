@@ -1,17 +1,20 @@
 package dasturlash.uz.controller;
 
+import dasturlash.uz.dtos.JwtDTO;
 import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileCreationDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfilePhotoUpdateDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileUpdateDTO;
+import dasturlash.uz.dtos.profileDTOs.*;
+import dasturlash.uz.enums.Role;
+import dasturlash.uz.exceptions.ForbiddenException;
 import dasturlash.uz.service.ProfileService;
+import dasturlash.uz.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/profile")
@@ -21,7 +24,14 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping
-    public ResponseEntity<ProfileResponseDTO> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO) {
+    public ResponseEntity<?> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO,
+                                        @RequestHeader("Authorization") String token) {
+
+
+//        JwtDTO parsedToken = JwtUtil.decode(token);
+//        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
+//            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
+//        }
         return ResponseEntity.status(201).body(profileService.createProfile(requestDTO));
     }
 
@@ -30,7 +40,13 @@ public class ProfileController {
     @PutMapping("/{id}/admin")
     public ResponseEntity<ProfileResponseDTO> updateProfileByAdmin(
             @PathVariable Long id,
-            @RequestBody @Valid ProfileUpdateDTO requestDTO) {
+            @RequestBody @Valid ProfileUpdateDTO requestDTO,
+            @RequestHeader("Authorization") String token) {
+
+        JwtDTO parsedToken = JwtUtil.decode(token);
+        if (!parsedToken.getRole().equals(Role.ADMIN.toString())) {
+            throw new ForbiddenException("You don't have fucking rights to do this bitch!");
+        }
 
         ProfileResponseDTO updatedProfile = profileService.updateProfileByAdmin(id, requestDTO);
         return ResponseEntity.ok(updatedProfile);
@@ -45,7 +61,7 @@ public class ProfileController {
     // Get the list of profiles
     @GetMapping({"", "/"})
     public ResponseEntity<PageImpl<ProfileResponseDTO>> getAll(@RequestParam(value = "page", defaultValue = "1") Integer page,
-                                                                   @RequestParam(value = "size", defaultValue = "5") Integer size) {
+                                                               @RequestParam(value = "size", defaultValue = "5") Integer size) {
 
         return ResponseEntity.ok().body(profileService.getAll(page - 1, size));
 
@@ -53,12 +69,12 @@ public class ProfileController {
 
     // Update Own Profile (USER)
     @PutMapping("/{id}")
-    public ResponseEntity<ProfileResponseDTO> updateOwnProfile(
+    public ResponseEntity<Boolean> updateOwnProfile(
             @PathVariable Long id,
-            @RequestBody @Valid ProfileUpdateDTO requestDTO) {
+            @RequestBody @Valid ProfileUpdateOwnDTO requestDTO,
+            @RequestHeader("Authorization") String token) {
 
-        ProfileResponseDTO updatedProfile = profileService.updateProfile(id, requestDTO);
-        return ResponseEntity.ok(updatedProfile);
+        return ResponseEntity.ok(profileService.updateProfileDetail(requestDTO, token));
     }
 
     // Update Profile Picture (USER)

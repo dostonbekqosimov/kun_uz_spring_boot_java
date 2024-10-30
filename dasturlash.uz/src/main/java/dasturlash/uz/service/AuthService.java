@@ -73,10 +73,10 @@ public class AuthService {
         boolean isPhoneNumber = login.matches("^\\+?[0-9]{10,15}$");
 
         if (isEmail) {
-            existsByEmailOrPhone(login, null);
+//            existsByEmailOrPhone(login, null);
            return loginByEmail(login, password);
         } else if (isPhoneNumber) {
-            existsByEmailOrPhone(null, login);
+//            existsByEmailOrPhone(null, login);
             return loginByPhone(login, password);
         } else {
             throw new IllegalArgumentException("Invalid login format. Please provide a valid email or phone number.");
@@ -110,7 +110,7 @@ public class AuthService {
         dto.setSurname(entity.getSurname());
         dto.setEmail(entity.getEmail());
         dto.setRole(entity.getRole());
-        dto.setJwtToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
+        dto.setJwtToken(JwtUtil.encode(entity.getPhone(), entity.getRole().toString()));
         return dto;
     }
 
