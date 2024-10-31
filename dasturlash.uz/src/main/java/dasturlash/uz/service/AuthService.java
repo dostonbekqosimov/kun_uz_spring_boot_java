@@ -1,5 +1,6 @@
 package dasturlash.uz.service;
 
+import dasturlash.uz.config.CustomUserDetails;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
@@ -11,6 +12,11 @@ import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.util.JwtUtil;
 import dasturlash.uz.util.MD5Util;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,9 +25,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final ProfileRepository profileRepository;
     private final EmailAuthService emailAuthService;
     private final SmsAuthService smsAuthService;
+    private final AuthenticationManager authenticationManager;
 
     public String registration(RegistrationDTO dto) {
         String login = dto.getLogin();
@@ -50,6 +58,7 @@ public class AuthService {
                 emailAuthService.registerViaEmail(dto, profile) :
                 smsAuthService.registerViaSms(dto, profile);
     }
+
     public String registrationConfirm(Long id) {
         return emailAuthService.confirmEmail(id);
     }
@@ -69,20 +78,26 @@ public class AuthService {
 
     public ProfileResponseDTO login(String login, String password) {
 
-        boolean isEmail = login.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
-        boolean isPhoneNumber = login.matches("^\\+?[0-9]{10,15}$");
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(login, password)
+            );
 
-        if (isEmail) {
-//            existsByEmailOrPhone(login, null);
-           return loginByEmail(login, password);
-        } else if (isPhoneNumber) {
-//            existsByEmailOrPhone(null, login);
-            return loginByPhone(login, password);
-        } else {
-            throw new IllegalArgumentException("Invalid login format. Please provide a valid email or phone number.");
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            ProfileResponseDTO dto = new ProfileResponseDTO();
+            dto.setName(userDetails.getName());
+            dto.setSurname(userDetails.getSurname());
+            dto.setEmail(userDetails.getEmail());
+            dto.setRole(userDetails.getRole());
+            dto.setJwtToken(JwtUtil.encode(login, userDetails.getRole().toString()));
+            return dto;
+
+        } catch (BadCredentialsException e) {
+            throw new DataNotFoundException("Email or password is wrong");
         }
-
     }
+
+
 
     private ProfileResponseDTO loginByPhone(String login, String password) {
 
