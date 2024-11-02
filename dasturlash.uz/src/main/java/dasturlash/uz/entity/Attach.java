@@ -12,15 +12,27 @@ import java.util.UUID;
 public class Attach {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;  // UUID for file uniqueness
+    private String id;
 
-    private String originalName;  // Original name of the uploaded file
-    private String path;          // Path where the file is stored (e.g., "/uploads/images/")
-    private Long size;            // File size in bytes
-    private String extension;     // File extension (e.g., ".jpg", ".png")
-    private LocalDateTime createdDate;  // When the file was uploaded
+    @Column(name = "path")
+    private String path;
+
+    @Column(name = "extension")
+    private String extension;
+
+    @Column(name = "origen_name")
+    private String origenName;
+    @Column(name = "size")
+    private Long size;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(name = "visible")
+    private Boolean visible = true;
+
 
     // Constructors, Getters, Setters
 }
+
 
