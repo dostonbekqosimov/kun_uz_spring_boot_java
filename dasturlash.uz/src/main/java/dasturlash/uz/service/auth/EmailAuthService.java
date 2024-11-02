@@ -1,7 +1,6 @@
-package dasturlash.uz.service;
+package dasturlash.uz.service.auth;
 
 import dasturlash.uz.enums.EmailStatus;
-import dasturlash.uz.enums.SmsStatus;
 import org.springframework.stereotype.Service;
 
 
@@ -9,18 +8,14 @@ import dasturlash.uz.dtos.profileDTOs.MessageDTO;
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.entity.EmailHistory;
 import dasturlash.uz.entity.Profile;
-import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.EmailHistoryRepository;
 import dasturlash.uz.repository.ProfileRepository;
-import dasturlash.uz.util.MD5Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

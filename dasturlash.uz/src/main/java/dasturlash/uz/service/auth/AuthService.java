@@ -1,18 +1,24 @@
-package dasturlash.uz.service;
+package dasturlash.uz.service.auth;
 
 import dasturlash.uz.config.CustomUserDetails;
+import dasturlash.uz.dtos.JwtDTO;
+import dasturlash.uz.dtos.TokenDTO;
+import dasturlash.uz.dtos.profileDTOs.JwtResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
+import dasturlash.uz.exceptions.AppBadRequestException;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.exceptions.UnauthorizedException;
 import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.util.JwtUtil;
+import dasturlash.uz.util.LoginIdentifierService;
 import dasturlash.uz.util.MD5Util;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,6 +37,7 @@ public class AuthService {
     private final EmailAuthService emailAuthService;
     private final SmsAuthService smsAuthService;
     private final AuthenticationManager authenticationManager;
+    private final LoginIdentifierService loginIdentifierService;
 
     public String registration(RegistrationDTO dto) {
         String login = dto.getLogin();
@@ -76,27 +84,64 @@ public class AuthService {
     }
 
 
-    public ProfileResponseDTO login(String login, String password) {
+    public JwtResponseDTO login(String login, String password) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, password)
             );
 
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            ProfileResponseDTO dto = new ProfileResponseDTO();
-            dto.setName(userDetails.getName());
-            dto.setSurname(userDetails.getSurname());
-            dto.setEmail(userDetails.getEmail());
-            dto.setRole(userDetails.getRole());
-            dto.setJwtToken(JwtUtil.encode(login, userDetails.getRole().toString()));
-            return dto;
+            if (authentication.isAuthenticated()) {
+                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+                JwtResponseDTO response = new JwtResponseDTO();
+                response.setLogin(login);
+                response.setToken(JwtUtil.encode(login, userDetails.getRole().toString()));
+                response.setRefreshToken(JwtUtil.refreshToken(login, userDetails.getRole().toString()));
+                response.setRoles(List.of(userDetails.getRole().toString()));
+
+                return response;
+            }
+            throw new UnauthorizedException("Login or password is wrong");
         } catch (BadCredentialsException e) {
-            throw new DataNotFoundException("Email or password is wrong");
+            throw new UnauthorizedException("Login or password is wrong");
+
         }
     }
 
+    public TokenDTO getNewAccessToken(TokenDTO dto) {
+        // First check if refresh token is provided
+        if (dto.getRefreshToken() == null || dto.getRefreshToken().trim().isEmpty()) {
+            throw new AppBadRequestException("Refresh token is required");
+        }
+
+        // Validate the refresh token
+        JwtUtil.TokenValidationResult validationResult = JwtUtil.validateToken(dto.getRefreshToken());
+        if (!validationResult.isValid()) {
+            throw new UnauthorizedException(validationResult.getMessage());
+        }
+
+        try {
+            JwtDTO jwtDTO = JwtUtil.decode(dto.getRefreshToken());
+
+
+            Profile profile = loginIdentifierService.identifyInputType(jwtDTO.getLogin());
+
+
+            // Check if user is still active
+            if (!profile.getStatus().equals(Status.ACTIVE)) {
+                throw new UnauthorizedException("User account is not active");
+            }
+
+            TokenDTO response = new TokenDTO();
+            response.setAccessToken(JwtUtil.encode(profile.getPhone(), profile.getRole().name()));
+            response.setRefreshToken(JwtUtil.refreshToken(profile.getPhone(), profile.getRole().name()));
+            return response;
+
+        } catch (JwtException e) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+    }
 
 
     private ProfileResponseDTO loginByPhone(String login, String password) {
@@ -125,7 +170,7 @@ public class AuthService {
         dto.setSurname(entity.getSurname());
         dto.setEmail(entity.getEmail());
         dto.setRole(entity.getRole());
-        dto.setJwtToken(JwtUtil.encode(entity.getPhone(), entity.getRole().toString()));
+        dto.setAccessToken(JwtUtil.encode(entity.getPhone(), entity.getRole().toString()));
         return dto;
     }
 
@@ -156,7 +201,7 @@ public class AuthService {
         dto.setSurname(entity.getSurname());
         dto.setEmail(entity.getEmail());
         dto.setRole(entity.getRole());
-        dto.setJwtToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
+        dto.setAccessToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
         return dto;
     }
 

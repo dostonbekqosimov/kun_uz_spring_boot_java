@@ -1,10 +1,7 @@
 package dasturlash.uz.handler;
 
 
-import dasturlash.uz.exceptions.AppBadRequestException;
-import dasturlash.uz.exceptions.DataExistsException;
-import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.exceptions.ForbiddenException;
+import dasturlash.uz.exceptions.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +55,11 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> exceptionHandler(ForbiddenException e) {
         return ResponseEntity.status(403).body(e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<?> exceptionHandler(UnauthorizedException e) {
+        return ResponseEntity.status(401).body(e.getMessage());
     }
 
 

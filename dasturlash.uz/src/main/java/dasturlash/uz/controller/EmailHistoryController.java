@@ -1,9 +1,10 @@
 package dasturlash.uz.controller;
 
 import dasturlash.uz.entity.EmailHistory;
-import dasturlash.uz.service.EmailHistoryService;
+import dasturlash.uz.service.auth.EmailHistoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ public class EmailHistoryController {
 
     // Get EmailHistory by email
     @GetMapping("/by-email")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<EmailHistory>> getEmailHistoryByEmail(@RequestParam String email) {
         List<EmailHistory> emailHistoryList = emailHistoryService.getEmailHistoryByEmail(email);
         if (emailHistoryList.isEmpty()) {
@@ -36,6 +38,7 @@ public class EmailHistoryController {
 
     // Get EmailHistory by given date
     @GetMapping("/by-date")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<EmailHistory>> getEmailHistoryByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
         List<EmailHistory> emailHistoryList = emailHistoryService.getEmailHistoryByDate(date);
@@ -47,10 +50,11 @@ public class EmailHistoryController {
 
     // Get EmailHistory with pagination (Admin)
     @GetMapping("/paginated")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Page<EmailHistory>> getEmailHistoryPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page -1, size);
         Page<EmailHistory> emailHistoryPage = emailHistoryService.getEmailHistoryWithPagination(pageable);
 
         if (emailHistoryPage.isEmpty()) {

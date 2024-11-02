@@ -10,6 +10,8 @@ import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.exceptions.ForbiddenException;
 import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.util.JwtUtil;
+import dasturlash.uz.util.MD5Util;
+import dasturlash.uz.util.SpringSecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -37,6 +39,7 @@ public class ProfileService {
 
         Profile newProfile = new Profile();
         modelMapper.map(requestDTO, newProfile);
+        newProfile.setPassword(MD5Util.getMd5(requestDTO.getPassword()));
         newProfile.setStatus(Status.ACTIVE);
         newProfile.setVisible(Boolean.TRUE);
         newProfile.setCreatedAt(LocalDateTime.now());
@@ -68,20 +71,12 @@ public class ProfileService {
 
     }
 
-    public boolean updateProfileDetail( ProfileUpdateOwnDTO requestDTO, String token) {
+    public boolean updateProfileDetail(ProfileUpdateOwnDTO requestDTO) {
 
-
-        JwtDTO parsedToken = JwtUtil.decode(token);
-
-        Profile profile = getByLogin(parsedToken.getLogin());
-
-
-
-
-//        Profile updatedProfile = covertToProfile(requestDTO, requestDTO);
-
-
-
+        Profile profile = getById(SpringSecurityUtil.getUserId());
+        profile.setName(requestDTO.getName());
+        profile.setSurname(requestDTO.getSurname());
+        profileRepository.save(profile);
 
         return true;
     }

@@ -1,0 +1,18 @@
+1. 18-darsdan boshlab ko'rish kerak(Spring Security code uz youtube) [...]
+
+2. Hamma api methodlarga annotation larni qo'shib qo'yish kerak(@PreAuthorize) [done] (except for ArticleController)
+
+3. Refresh tokenni o'rganib kun uz ga qo'shish kerak. [done]
+
+4. Password Encoder ni qo'shish kerak(MD5 ni o'rniga)  [...]
+
+4. Article apilarni implement qilish [...]
+
+
+homework for 2.11.2024
+
+h/w
+1. Spring Security article read
+2. RefreshTokeb implementation
+3. User @PreAuthorize in all places
+4. use bycript algoritm instead of md5 (optional)

@@ -4,6 +4,7 @@ import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,19 +16,21 @@ import java.util.List;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private Long id;
-    private String name;
-    private String surname;
-    private String email;
-    private String password;
-    private Status status;
-    private Role role;
+    private final Long id;
+    private final String name;
+    private final String surname;
+    private final String email;
+    private final String phone;
+    private final String password;
+    private final Status status;
+    private final Role role;
 
     public CustomUserDetails(Profile profile) {
         this.id = profile.getId();
         this.name = profile.getName();
         this.surname = profile.getSurname();
         this.email = profile.getEmail();
+        this.phone = profile.getPhone();
         this.password = profile.getPassword();
         this.role = profile.getRole();
         this.status = profile.getStatus();
@@ -49,8 +52,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return (email != null) ? email : phone;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

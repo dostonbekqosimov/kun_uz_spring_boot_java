@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addProfile(@RequestBody @Valid ProfileCreationDTO requestDTO) {
         return ResponseEntity.status(201).body(profileService.createProfile(requestDTO));
     }
@@ -31,6 +33,7 @@ public class ProfileController {
 
     // Update Profile (ADMIN)
     @PutMapping("/{id}/admin")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProfileResponseDTO> updateProfileByAdmin(
             @PathVariable Long id,
             @RequestBody @Valid ProfileUpdateDTO requestDTO) {
@@ -48,6 +51,7 @@ public class ProfileController {
 
     // Get the list of profiles
     @GetMapping({"", "/"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PageImpl<ProfileResponseDTO>> getAll(@RequestParam(value = "page", defaultValue = "1") Integer page,
                                                                @RequestParam(value = "size", defaultValue = "5") Integer size) {
 
@@ -58,11 +62,9 @@ public class ProfileController {
     // Update Own Profile (USER)
     @PutMapping("/{id}")
     public ResponseEntity<Boolean> updateOwnProfile(
-            @PathVariable Long id,
-            @RequestBody @Valid ProfileUpdateOwnDTO requestDTO,
-            @RequestHeader("Authorization") String token) {
+            @RequestBody @Valid ProfileUpdateOwnDTO requestDTO) {
 
-        return ResponseEntity.ok(profileService.updateProfileDetail(requestDTO, token));
+        return ResponseEntity.ok(profileService.updateProfileDetail(requestDTO));
     }
 
     // Update Profile Picture (USER)
@@ -77,6 +79,7 @@ public class ProfileController {
 
     // Delete by ID
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(profileService.deleteById(id));
     }

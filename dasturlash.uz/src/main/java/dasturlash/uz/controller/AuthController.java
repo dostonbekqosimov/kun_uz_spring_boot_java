@@ -1,12 +1,14 @@
 package dasturlash.uz.controller;
 
+import dasturlash.uz.dtos.TokenDTO;
+import dasturlash.uz.dtos.TokenRefreshRequestDTO;
+import dasturlash.uz.dtos.profileDTOs.JwtResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.LoginDTO;
 import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
-import dasturlash.uz.service.AuthService;
+import dasturlash.uz.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+
 
     @PostMapping("/registration")
     public ResponseEntity<String> registration(@RequestBody @Valid RegistrationDTO dto) {
@@ -38,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ProfileResponseDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
+    public ResponseEntity<JwtResponseDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
         return ResponseEntity.ok(authService.login(loginDTO.getLogin(), loginDTO.getPassword()));
     }
 
@@ -57,5 +60,12 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenDTO> refreshToken(@Valid @RequestBody TokenRefreshRequestDTO request) {
+        TokenDTO tokenDTO = new TokenDTO();
+        tokenDTO.setRefreshToken(request.getRefreshToken());
+        return ResponseEntity.ok(authService.getNewAccessToken(tokenDTO));
+    }
 
 }

@@ -26,7 +26,9 @@ public class ProfileResponseDTO {
     private LocalDateTime createdAt;
     private Attach photo;
 
-    private String jwtToken;
+    private String accessToken;
+    private String refreshToken;
+
 
 
 }

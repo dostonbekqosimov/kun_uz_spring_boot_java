@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class CategoryController {
 
     // Add new Category
     @PostMapping({"", "/"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> create(@RequestBody @Valid CategoryRequestDTO creationDTO) {
 
         return ResponseEntity.status(201).body(service.create(creationDTO));
@@ -31,6 +33,7 @@ public class CategoryController {
 
     // Get the list of article types
     @GetMapping({"", "/"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PageImpl<CategoryResponseDTO>> getAll(@RequestParam(value = "page", defaultValue = "1") Integer page,
                                                                 @RequestParam(value = "size", defaultValue = "5") Integer size) {
 
@@ -41,6 +44,7 @@ public class CategoryController {
 
     // Get by ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getById(@PathVariable("id") Long id) {
 
         return ResponseEntity.ok().body(service.getCategoryById(id));
@@ -48,6 +52,7 @@ public class CategoryController {
 
     // Update by ID
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateById(@PathVariable("id") Long id,
                                         @RequestBody @Valid CategoryRequestDTO requestDTO) {
 
@@ -56,6 +61,7 @@ public class CategoryController {
 
     // Delete by ID
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(service.deleteById(id));
     }

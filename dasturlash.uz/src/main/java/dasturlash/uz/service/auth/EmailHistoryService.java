@@ -1,4 +1,4 @@
-package dasturlash.uz.service;
+package dasturlash.uz.service.auth;
 
 import dasturlash.uz.entity.EmailHistory;
 import dasturlash.uz.repository.EmailHistoryRepository;

@@ -1,4 +1,4 @@
-package dasturlash.uz.service;
+package dasturlash.uz.service.auth;
 
 import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.enums.SmsStatus;
@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 // SmsAuthService.java
 
 
-import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.entity.SmsHistory;
 import dasturlash.uz.enums.Status;
@@ -16,10 +15,8 @@ import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.repository.SmsHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Random;
 
 @Service

@@ -1,4 +1,4 @@
-package dasturlash.uz.service;
+package dasturlash.uz.service.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasturlash.uz.dtos.SmsAuthResponseDTO;

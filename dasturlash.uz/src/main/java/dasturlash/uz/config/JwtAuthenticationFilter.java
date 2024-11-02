@@ -40,45 +40,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String token = header.substring(7).trim();
             JwtDTO dto = JwtUtil.decode(token);
 
-/*
-@Override
-protected void doFilterInternal(HttpServletRequest request,
-                                HttpServletResponse response,
-                                FilterChain filterChain) throws ServletException, IOException {
-
-    final String header = request.getHeader("Authorization");
-    if (header == null || !header.startsWith("Bearer ")) {
-        filterChain.doFilter(request, response); // Continue the filter chain
-        return;
-    }
-
-    try {
-    final String token = header.substring(7).trim();
-    JwtDTO dto = JwtUtil.decode(token);
-    // load user depending on role
-    String email = dto.getUsername();
-    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-    filterChain.doFilter(request, response);
-    } catch (JwtException | UsernameNotFoundException e) {
-        filterChain.doFilter(request, response); // Continue the filter chain
-        return;
-    }
-}
-
- */
 
             // load user depending on role
-            String email = dto.getLogin();
-            String role = dto.getRole();
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            String login = dto.getLogin();
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+
 
             System.out.println("JWT Role: " + dto.getRole());
             System.out.println("User Details Authorities: " + userDetails.getAuthorities());
+
+
+            // Savol ustozga: Bu yerda biz roleni JWTdan mas balki userdetailsadan beryabmizmi, shuni o'zgartirish kerakmi?
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
