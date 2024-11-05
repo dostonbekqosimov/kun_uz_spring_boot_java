@@ -1,6 +1,8 @@
 package dasturlash.uz.config;
 
 import dasturlash.uz.entity.Profile;
+import dasturlash.uz.exceptions.DataNotFoundException;
+import dasturlash.uz.exceptions.UnauthorizedException;
 import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.util.LoginIdentifierService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,25 @@ public class CustomUserDetailsService implements UserDetailsService {
     private LoginIdentifierService identifierService;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
 
-        Profile profile = identifierService.identifyInputType(username);
 
-        return new CustomUserDetails(profile) ;
+//        Profile profile = identifierService.identifyInputType(username);
+
+
+        Optional<Profile> optional = profileRepository.findByLoginAndVisibleTrue(username);
+
+        if (optional.isEmpty()){
+            throw new UnauthorizedException("Login or password is wrong");
+        }
+
+        Profile profile = optional.get();
+
+
+//        Profile profile1 = profileRepository.findByPhoneOrEmail(username)
+//                .orElseThrow(() -> new DataNotFoundException("Invalid login format. Please provide a valid email or phone number."));
+
+        return new CustomUserDetails(profile);
     }
 
 }

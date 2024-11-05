@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class AuthService {
     private final SmsAuthService smsAuthService;
     private final AuthenticationManager authenticationManager;
     private final LoginIdentifierService loginIdentifierService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public String registration(RegistrationDTO dto) {
         String login = dto.getLogin();
@@ -54,10 +56,11 @@ public class AuthService {
 
         Profile profile = new Profile();
         profile.setName(dto.getName());
-        profile.setPassword(MD5Util.getMd5(dto.getPassword()));
+        profile.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         profile.setSurname(dto.getSurname());
         profile.setCreatedAt(LocalDateTime.now());
         profile.setRole(Role.ROLE_USER);
+        profile.setLogin(login);
         profile.setVisible(Boolean.TRUE);
         profile.setStatus(Status.IN_REGISTRATION);
 
@@ -125,7 +128,12 @@ public class AuthService {
             JwtDTO jwtDTO = JwtUtil.decode(dto.getRefreshToken());
 
 
+
+            // Bu yaxshi yechim ekan, keyin email yoki phone ekanligini client taraf anqilarkan
             Profile profile = loginIdentifierService.identifyInputType(jwtDTO.getLogin());
+
+//            Profile profile = profileRepository.findByPhoneOrEmail(jwtDTO.getLogin()).get();
+
 
 
             // Check if user is still active
