@@ -9,6 +9,7 @@ target/
 # Ignore talablar.txt
 talablar.txt
 Tasks.txt
+Savollar.txt
 
 ### STS ###
 .apt_generated

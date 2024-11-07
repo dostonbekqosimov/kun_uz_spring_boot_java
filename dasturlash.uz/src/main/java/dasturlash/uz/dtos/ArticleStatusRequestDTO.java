@@ -1,9 +1,14 @@
 package dasturlash.uz.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ArticleStatusRequestDTO {
 
-    private  String status;
+
+    @NotBlank(message = "Status is required")
+    private String status;
 }

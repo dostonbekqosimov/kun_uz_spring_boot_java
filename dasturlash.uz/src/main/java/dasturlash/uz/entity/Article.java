@@ -1,6 +1,6 @@
 package dasturlash.uz.entity;
 
-
+import dasturlash.uz.enums.ArticleStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,6 +15,7 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     private String title;
     private String description;
     private String content;
@@ -23,28 +24,42 @@ public class Article {
     private Integer viewCount;
     private LocalDateTime createdDate;
     private LocalDateTime publishedDate;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private ArticleStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "image_id")
+    @JoinColumn(name = "image_id", insertable = false, updatable = false)
     private Attach image;
 
+    @Column(name = "image_id")
+    private String imageId;
+
     @ManyToOne
-    @JoinColumn(name = "region_id")
+    @JoinColumn(name = "region_id", insertable = false, updatable = false)
     private Region region;
 
+    @Column(name = "region_id")
+    private Integer regionId;
+
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Category category;
 
+    @Column(name = "category_id")
+    private Integer categoryId;
 
     @ManyToOne
-    @JoinColumn(name = "moderator_id")
+    @JoinColumn(name = "moderator_id", insertable = false, updatable = false)
     private Profile moderator;
 
+    @Column(name = "moderator_id")
+    private Integer moderatorId;
+
     @ManyToOne
-    @JoinColumn(name = "publisher_id")
+    @JoinColumn(name = "publisher_id", insertable = false, updatable = false)
     private Profile publisher;
 
-
+    @Column(name = "publisher_id")
+    private Integer publisherId;
 }

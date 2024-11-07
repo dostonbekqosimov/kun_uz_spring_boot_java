@@ -1,6 +1,7 @@
 package dasturlash.uz.service.auth;
 
 import dasturlash.uz.config.CustomUserDetails;
+import dasturlash.uz.dtos.AttachDTO;
 import dasturlash.uz.dtos.JwtDTO;
 import dasturlash.uz.dtos.TokenDTO;
 import dasturlash.uz.dtos.profileDTOs.JwtResponseDTO;
@@ -14,6 +15,7 @@ import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.exceptions.UnauthorizedException;
 import dasturlash.uz.repository.ProfileRepository;
+import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.JwtUtil;
 import dasturlash.uz.util.LoginIdentifierService;
 import dasturlash.uz.util.MD5Util;
@@ -40,6 +42,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final LoginIdentifierService loginIdentifierService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AttachService attachService;
 
     public String registration(RegistrationDTO dto) {
         String login = dto.getLogin();
@@ -89,6 +92,12 @@ public class AuthService {
 
     public JwtResponseDTO login(String login, String password) {
 
+
+        Profile entity = profileRepository.findByLoginAndVisibleTrue(login)
+                .orElseThrow(() -> new UnauthorizedException("Login or password is wrong"));
+
+
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, password)
@@ -102,6 +111,16 @@ public class AuthService {
                 response.setToken(JwtUtil.encode(login, userDetails.getRole().toString()));
                 response.setRefreshToken(JwtUtil.refreshToken(login, userDetails.getRole().toString()));
                 response.setRoles(List.of(userDetails.getRole().toString()));
+
+                ProfileResponseDTO responseDTO = new ProfileResponseDTO();
+                responseDTO.setName(entity.getName());
+                responseDTO.setSurname(entity.getSurname());
+                responseDTO.setLogin(entity.getLogin());
+                responseDTO.setRole(entity.getRole());
+                responseDTO.setAccessToken(JwtUtil.encode(login, userDetails.getRole().toString()));
+                responseDTO.setRefreshToken(JwtUtil.refreshToken(login, userDetails.getRole().toString()));
+                responseDTO.setPhoto(attachService.getDto(entity.getPhotoId()));
+
 
                 return response;
             }
@@ -128,12 +147,10 @@ public class AuthService {
             JwtDTO jwtDTO = JwtUtil.decode(dto.getRefreshToken());
 
 
-
             // Bu yaxshi yechim ekan, keyin email yoki phone ekanligini client taraf anqilarkan
             Profile profile = loginIdentifierService.identifyInputType(jwtDTO.getLogin());
 
 //            Profile profile = profileRepository.findByPhoneOrEmail(jwtDTO.getLogin()).get();
-
 
 
             // Check if user is still active

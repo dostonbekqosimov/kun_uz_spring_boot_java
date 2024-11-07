@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ModelMapper modelMapper;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
     public ProfileResponseDTO createProfile(ProfileCreationDTO requestDTO) {
@@ -39,7 +41,7 @@ public class ProfileService {
 
         Profile newProfile = new Profile();
         modelMapper.map(requestDTO, newProfile);
-        newProfile.setPassword(MD5Util.getMd5(requestDTO.getPassword()));
+        newProfile.setPassword(bCryptPasswordEncoder.encode(requestDTO.getPassword()));
         newProfile.setStatus(Status.ACTIVE);
         newProfile.setVisible(Boolean.TRUE);
         newProfile.setCreatedAt(LocalDateTime.now());

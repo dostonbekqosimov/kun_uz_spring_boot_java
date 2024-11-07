@@ -14,4 +14,6 @@ public class ProfileUpdateOwnDTO {
     @Size(max = 50, message = "Surname cannot be longer than 50 characters")
     private String surname;
 
+    private String photo_id;
+
 }

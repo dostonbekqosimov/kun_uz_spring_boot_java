@@ -4,15 +4,27 @@
 
 3. Refresh tokenni o'rganib kun uz ga qo'shish kerak. [done]
 
-4. Password Encoder ni qo'shish kerak(MD5 ni o'rniga)  [...]
+4. Password Encoder ni qo'shish kerak(MD5 ni o'rniga)  [done]
 
-4. Article apilarni implement qilish [...]
+5. Article apilarni implement qilish [...]
+
+6. Attach api larni tugatish [...]
+
+7. Faqat bitta login lik qilish kerak db ni email, phone degan tablelarni olib tashlash kerak [...]
+
+8. I have to review Attach article after the lesson
 
 
-homework for 2.11.2024
-
-h/w
+#### homework for 2.11.2024 ####
+h/w  [DONE]
 1. Spring Security article read
 2. RefreshTokeb implementation
 3. User @PreAuthorize in all places
-4. use bycript algoritm instead of md5 (optional)
+4. use bycript algoritm instead of md5 (optional)    [DONE]
+
+#### homework for 5.11.2024 ####
+H/w   [...]
+1. Attach  (1,2,3,4,5,6) [Copied from dasturlash uz, I have to review it after the lesson]
+2. Compress image
+3. Donwload
+4.  Spring Interview Question (General,Bean,Annotation)

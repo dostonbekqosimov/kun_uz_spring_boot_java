@@ -6,6 +6,7 @@ import dasturlash.uz.service.AttachService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class AttachController {
         return attachService.download(fileName);
     }
 
+
     @GetMapping("")
     public ResponseEntity<PageImpl<AttachDTO>> getAll(@RequestParam(value = "page", defaultValue = "1") int page,
                                                       @RequestParam(value = "size", defaultValue = "15") int size) {
@@ -43,7 +45,6 @@ public class AttachController {
     public ResponseEntity<Boolean> delete(@PathVariable("id") String id) {
         return ResponseEntity.ok(attachService.delete(id));
     }
-
 
 
 }

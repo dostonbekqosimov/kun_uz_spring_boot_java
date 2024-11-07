@@ -10,9 +10,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
+
+
+
     
     boolean existsByPhone(String phone);
 
@@ -21,6 +26,11 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByIdAndVisibleTrue(Long id);
 
     Page<Profile> findAllByVisibleTrue(Pageable pageRequest);
+
+//    @Query(value = "SELECT * FROM profiles p WHERE " +
+//           "(p.phone = :login AND :login ~ '^[0-9]+$') OR " +
+//           "(p.email = :login AND :login ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')", nativeQuery = true)
+//    Optional<Profile> findByPhoneOrEmail(@Param("login") String login);
 
     @Modifying
     @Transactional
@@ -39,4 +49,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByEmailAndVisibleTrue(String email);
 
     boolean existsByEmailAndVisibleTrue(String email);
+
+    Optional<Profile> findByLoginAndVisibleTrue(String username);
 }

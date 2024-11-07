@@ -1,6 +1,7 @@
 package dasturlash.uz.dtos.profileDTOs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dasturlash.uz.dtos.AttachDTO;
 import dasturlash.uz.entity.Attach;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
@@ -19,12 +20,13 @@ public class ProfileResponseDTO {
     private String surname;
     private String email;
     private String phone;
+    private String login;
     private String password;
     private Status status;
     private Boolean visible;
     private Role role;
     private LocalDateTime createdAt;
-    private Attach photo;
+    private AttachDTO photo;
 
     private String accessToken;
     private String refreshToken;

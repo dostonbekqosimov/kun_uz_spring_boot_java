@@ -6,6 +6,7 @@ import dasturlash.uz.exceptions.AppBadRequestException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.AttachRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,10 @@ public class AttachService {
     @Autowired
     private AttachRepository attachRepository;
 
-    private final String folderName = "dasturlash.uz/attaches";
+    @Value("${attach.upload.folder}")
+    private String folderName;
+    @Value("${attach.url}")
+    private String attachUrl;
 
 
     public AttachDTO upload(MultipartFile file) {
@@ -95,21 +99,23 @@ public class AttachService {
     public ResponseEntity<Resource> download(String id) {
         try {
             Attach entity = getById(id);
-            String path = folderName + "/" + entity.getPath() + "/" + entity.getId();
-
             Path filePath = Paths.get(getPath(entity)).normalize();
             Resource resource = new UrlResource(filePath.toUri());
+
             if (resource.exists() || resource.isReadable()) {
                 return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + entity.getOrigenName() + "\"").body(resource);
             } else {
-                throw new DataNotFoundException("Could not read the file!");
+                throw new RuntimeException("Could not read the file!");
             }
+
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            throw new DataNotFoundException("Could not read the file!");
+            throw new RuntimeException("Could not read the file!");
         }
     }
+
 
     public boolean delete(String id) {
         Attach entity = getById(id);
@@ -130,6 +136,16 @@ public class AttachService {
 
     private String getPath(Attach entity) {
         return folderName + "/" + entity.getPath() + "/" + entity.getId();
+    }
+
+    public AttachDTO getDto(String id) {
+        if (id == null) {
+            return null;
+        }
+        AttachDTO photo = new AttachDTO();
+        photo.setId(id);
+        photo.setUrl(openURL(id));
+        return photo;
     }
 
     public AttachDTO getAttachDTO(String id) {
@@ -153,6 +169,10 @@ public class AttachService {
         return fileName.substring(lastIndex + 1);
     }
 
+    public String openURL(String fileName) {
+        return attachUrl + "/open/" + fileName;
+    }
+
     private AttachDTO toDTO(Attach entity) {
         AttachDTO attachDTO = new AttachDTO();
         attachDTO.setId(entity.getId());
@@ -160,6 +180,7 @@ public class AttachService {
         attachDTO.setSize(entity.getSize());
         attachDTO.setExtension(entity.getExtension());
         attachDTO.setCreatedData(entity.getCreatedDate());
+        attachDTO.setUrl(openURL(entity.getId()));
         return attachDTO;
     }
 }

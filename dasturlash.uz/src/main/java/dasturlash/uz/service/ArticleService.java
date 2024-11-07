@@ -5,8 +5,11 @@ import dasturlash.uz.dtos.ArticleFullInfoDTO;
 import dasturlash.uz.dtos.ArticleShortInfoDTO;
 import dasturlash.uz.dtos.ArticleUpdateRequestDTO;
 import dasturlash.uz.entity.Article;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+
 
 public interface ArticleService {
 

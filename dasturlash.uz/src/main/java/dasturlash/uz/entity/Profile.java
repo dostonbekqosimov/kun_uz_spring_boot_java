@@ -30,7 +30,9 @@ public class Profile {
 
     private LocalDateTime createdAt;
 
+    @Column(name = "photo_id")
+    private String photoId;
     @ManyToOne
-    @JoinColumn(name = "photo_id")  // Store reference to the image in Attach
+    @JoinColumn(name = "photo_id",insertable = false,updatable = false)  // Store reference to the image in Attach
     private Attach photo;
 }

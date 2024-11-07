@@ -24,7 +24,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         Article newArticle = new Article();
         newArticle.setTitle(request.getTitle());
-        newArticle.setDescription(request.getDescription());
+        newArticle.setDescription(request.getDescription());                
         newArticle.setContent(request.getContent());
         newArticle.setSharedCount(0);
         newArticle.setImageId(request.getImageId());
