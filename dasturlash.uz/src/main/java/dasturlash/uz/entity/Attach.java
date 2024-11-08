@@ -32,7 +32,6 @@ public class Attach {
     private Boolean visible = true;
 
 
-    // Constructors, Getters, Setters
 }
 
 
