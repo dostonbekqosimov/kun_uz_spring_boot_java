@@ -2,6 +2,7 @@ package dasturlash.uz.repository;
 
 import dasturlash.uz.entity.article.ArticleTypeMapping;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,7 @@ public interface ArticleTypeMapRepository extends JpaRepository<ArticleTypeMappi
     @Transactional
     @Query("delete from ArticleTypeMapping where articleId =?1 and articleTypeId = ?2")
     void deleteByArticleIdAndTypeId(String articleId, Long articleTypeId);
+
+    @Query("select articleId from ArticleTypeMapping where articleTypeId =?1 order by createdDate desc")
+    List<String> findAllArticleIdListByTypeId(Long articleTypeId, Pageable pageable);
 }

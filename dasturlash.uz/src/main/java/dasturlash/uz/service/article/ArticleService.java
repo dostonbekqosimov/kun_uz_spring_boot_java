@@ -5,10 +5,14 @@ import dasturlash.uz.dtos.article.*;
 import dasturlash.uz.dtos.articleType.ArticleTypeResponseDTO;
 import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.enums.ArticleStatus;
+import dasturlash.uz.exceptions.ArticleNotFoundException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ArticleRepository;
+import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
+import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,10 +27,11 @@ public class ArticleService {
     private ArticleTypeMapService articleTypeMapService;
     @Autowired
     private ArticleAttacheService articleAttacheService;
+    @Autowired
+    private AttachService attachService;
 
 
-
-    public Article createArticle(ArticleRequestDTO request) {
+    public ArticleDTO createArticle(ArticleRequestDTO request) {
 
         ArticleRequestDTO dto = request;
 
@@ -34,6 +39,7 @@ public class ArticleService {
         newArticle.setTitle(request.getTitle());
         newArticle.setDescription(request.getDescription());
         newArticle.setContent(request.getContent());
+        newArticle.setImageId(request.getImageId());
         newArticle.setSharedCount(0);
         newArticle.setVisible(Boolean.TRUE);
         newArticle.setViewCount(0);
@@ -53,14 +59,28 @@ public class ArticleService {
         // setting attaches
         articleAttacheService.merge(articleId, request.getAttachDTOList());
 
-        // dto ga o'girib keyin return qilish kerak [...]
-        return newArticle;
+
+        ArticleDTO respond = toArticleDTO(newArticle);
+
+        // set moderator id
+        respond.setModeratorId(newArticle.getModeratorId());
+
+        // set types ( shu yerda faqat idlarni jo'natib qo'yish ham mumkin
+        respond.setArticleTypeList(articleTypeMapService.getArticleTypeList(articleId));
+
+        // set images ( I don't have to do this, but It is good practice, so I just want to keep it
+        respond.setImageList(articleAttacheService.getAttachList(articleId));
+
+
+        return respond;
+        // dto ga o'girib keyin return qilish kerak [done]
+//        return newArticle;
 
 
     }
 
 
-    public Article updateArticle(String articleId, ArticleRequestDTO request) {
+    public ArticleDTO updateArticle(String articleId, ArticleRequestDTO request) {
 
         Article oldArticle = articleRepository.findById(articleId).
                 orElseThrow(() -> new DataNotFoundException("Article not found"));
@@ -75,6 +95,7 @@ public class ArticleService {
         oldArticle.setRegionId(request.getRegionId());
         oldArticle.setCategoryId(request.getCategoryId());
         oldArticle.setStatus(ArticleStatus.NOT_PUBLISHED);
+        oldArticle.setModeratorId(SpringSecurityUtil.getUserId());
 
 
         articleRepository.save(oldArticle);
@@ -86,34 +107,80 @@ public class ArticleService {
         // setting article types
         articleTypeMapService.merge(articleId, request.getArticleTypeList());
 
+        ArticleDTO respond = toArticleDTO(oldArticle);
+
+        // set moderator id
+        respond.setModeratorId(oldArticle.getModeratorId());
+
+        // set types
+        respond.setArticleTypeList(articleTypeMapService.getArticleTypeList(articleId));
+
+        // set images ( I don't have to do this, but It is good practice, so I just want to keep it
+        respond.setImageList(articleAttacheService.getAttachList(articleId));
 
 
-        return oldArticle;
+        return respond;
     }
 
 
-    public void deleteArticle(String id) {
+    public void deleteArticle(String articleId) {
+
+        Article existingArticle = getArticleEntityById(articleId);
+
+        articleRepository.changeVisibility(articleId);
 
     }
 
 
-    public Article changeStatus(String id, String status) {
-        return null;
+    public ArticleDTO changeStatus(String articleId, ArticleStatus status) {
+
+        Article existingArticle = getArticleEntityById(articleId);
+
+        // changing the status
+        existingArticle.setStatus(status);
+
+        // setting the published time
+        existingArticle.setPublishedDate(LocalDateTime.now());
+
+        articleRepository.save(existingArticle);
+
+        ArticleDTO respond = toArticleDTO(existingArticle);
+
+        // set moderator id
+        respond.setModeratorId(existingArticle.getModeratorId());
+
+        // set types ( shu yerda faqat idlarni jo'natib qo'yish ham mumkin
+        respond.setArticleTypeList(articleTypeMapService.getArticleTypeList(articleId));
+
+        // set images ( I don't have to do this, but It is good practice, so I just want to keep it
+        respond.setImageList(articleAttacheService.getAttachList(articleId));
+
+        return respond;
+
+
     }
 
 
-    public List<ArticleShortInfoDTO> getLastNArticlesByTypes(List<String> types, int count) {
-        return List.of();
-    }
+    // Oxirgi qo'shilganlarni olmayabdi nimagadur
+    public List<ArticleShortInfoDTO> getLastNArticlesByTypes(Long articleTypeId, Integer count) {
+
+        List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, count);
 
 
-    public List<ArticleShortInfoDTO> getLast3ArticlesByTypes(List<String> types) {
-        return List.of();
+        List<ArticleShortInfoDTO> articleList = getArticlesByIds(articleIdList, articleTypeId);
+
+
+        return articleList;
     }
 
 
     public List<ArticleShortInfoDTO> getLast8ArticlesExcluding(List<String> excludedIds) {
-        return List.of();
+
+        List<ArticleShortInfoMapper> result = articleRepository
+                .findLast8ArticlesExcluding(ArticleStatus.PUBLISHED, excludedIds, PageRequest.of(0, 8));
+
+        return result.stream().map(item -> toArticleShortInfoDTO(item)).toList();
+
     }
 
 
@@ -197,5 +264,48 @@ public class ArticleService {
 
         // returning articleDto with ids and urls of article as well as title and content
         return dto;
+    }
+
+    private ArticleDTO toArticleDTO(Article article) {
+
+        ArticleDTO articleDTO = new ArticleDTO();
+        articleDTO.setId(article.getId());
+        articleDTO.setTitle(article.getTitle());
+        articleDTO.setDescription(article.getDescription());
+        articleDTO.setCategoryId(articleDTO.getCategoryId());
+        articleDTO.setRegionId(articleDTO.getRegionId());
+        articleDTO.setCreatedDate(article.getCreatedDate());
+
+
+        return articleDTO;
+    }
+
+    private ArticleShortInfoDTO toArticleShortInfoDTO(ArticleShortInfoMapper article) {
+        ArticleShortInfoDTO dto = new ArticleShortInfoDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setDescription(article.getDescription());
+        dto.setImage(attachService.getDto(article.getImageId()));
+        dto.setPublishedDate(article.getPublishedDate());
+        return dto;
+    }
+
+    public Article getArticleEntityById(String articleId) {
+        return articleRepository.findByIdAndVisibleTrue(articleId)
+                .orElseThrow(() -> new DataNotFoundException("Article with id: " + articleId + " not found"));
+    }
+
+    public List<ArticleShortInfoDTO> getArticlesByIds(List<String> articleIdList, Long articleTypeId) {
+        // Fetch articles in bulk using a repository or DAO
+        List<ArticleShortInfoMapper> articles = articleRepository.findAllArticlesByIdList(ArticleStatus.PUBLISHED, articleIdList);
+
+        if (articles.isEmpty()) {
+
+            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
+
+        }
+
+        // Convert entities to DTOs
+        return articles.stream().map(item -> toArticleShortInfoDTO(item)).toList();
     }
 }

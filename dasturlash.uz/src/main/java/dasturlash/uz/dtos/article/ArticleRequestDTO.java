@@ -24,6 +24,8 @@ public class ArticleRequestDTO {
     @NotBlank(message = "Content is required")
     private String content;
 
+    // Buni qo'shyabman chunki rasmlarni o'zi kunuzdan olinarkan yani men o'zi db da bor rasmlardan foydalanaman ekan
+    private String imageId;
 
     private List<AttachDTO> attachDTOList;
 

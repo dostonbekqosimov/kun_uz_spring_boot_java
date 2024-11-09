@@ -62,6 +62,12 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return ResponseEntity.status(401).body(e.getMessage());
     }
 
+    @ExceptionHandler(ArticleNotFoundException.class)
+    public ResponseEntity<?> exceptionHandler(ArticleNotFoundException e) {
+        return ResponseEntity.status(404).body(e.getMessage());
+    }
+
+
 
 
 

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -28,4 +30,6 @@ public class ArticleTypeMapping {
     @ManyToOne
     @JoinColumn(name = "article_type_id", insertable = false, updatable = false)
     private ArticleType articleType;
+
+    private LocalDateTime createdDate;
 }

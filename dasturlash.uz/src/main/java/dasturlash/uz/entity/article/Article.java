@@ -1,5 +1,6 @@
 package dasturlash.uz.entity.article;
 
+import dasturlash.uz.entity.Attach;
 import dasturlash.uz.entity.Category;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.entity.Region;
@@ -29,6 +30,11 @@ public class Article {
     private LocalDateTime createdDate;
     private LocalDateTime publishedDate;
 
+    @Column(name = "image_id")
+    private String imageId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id", updatable = false, insertable = false)
+    private Attach image;
 
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;

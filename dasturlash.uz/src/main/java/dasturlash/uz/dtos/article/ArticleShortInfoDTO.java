@@ -1,5 +1,6 @@
 package dasturlash.uz.dtos.article;
 
+import dasturlash.uz.dtos.AttachDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,13 +11,8 @@ public class ArticleShortInfoDTO {
     private String id;
     private String title;
     private String description;
-    private String content;
-    private int sharedCount;
-    private RegionInfo region;
-    private CategoryInfo category;
+    private AttachDTO image;
     private LocalDateTime publishedDate;
-    private int viewCount;
-    private int likeCount;
-    private List<TagInfo> tagList;
+
 
 }
