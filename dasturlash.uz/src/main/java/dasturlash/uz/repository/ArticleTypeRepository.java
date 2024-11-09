@@ -1,6 +1,6 @@
 package dasturlash.uz.repository;
 
-import dasturlash.uz.entity.ArticleType;
+import dasturlash.uz.entity.article.ArticleType;
 import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;

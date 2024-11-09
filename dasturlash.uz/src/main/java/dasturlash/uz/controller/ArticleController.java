@@ -1,27 +1,28 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.*;
-import dasturlash.uz.entity.Article;
-import dasturlash.uz.service.ArticleService;
+import dasturlash.uz.dtos.article.*;
+import dasturlash.uz.entity.article.Article;
+import dasturlash.uz.service.article.ArticleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/articles")
+@RequestMapping("/article")
 public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
 
     // 1. CREATE article
+
+    // jwt da moderator id ni berib yuborish kerak yani profile id
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity<Article> createArticle(@RequestBody ArticleCreateRequestDTO request) {
+    public ResponseEntity<Article> createArticle(@RequestBody @Valid ArticleRequestDTO request) {
 
         return ResponseEntity.ok().body(articleService.createArticle(request));
 
@@ -30,13 +31,17 @@ public class ArticleController {
 
     // 2. Update article (remove old image)
     @PutMapping("/{id}")
-    public ResponseEntity<Article> updateArticle(@PathVariable String id, @RequestBody ArticleUpdateRequestDTO request) {
-        try {
+    public ResponseEntity<Article> updateArticle(@PathVariable String id, @RequestBody @Valid ArticleRequestDTO request) {
+
             Article updatedArticle = articleService.updateArticle(id, request);
             return ResponseEntity.ok(updatedArticle);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+
+    }
+
+    @GetMapping("/{articleId}")
+    public ArticleDTO getArticleById(@PathVariable("articleId") String articleId) {
+
+        return articleService.getArticleById(articleId);
     }
 
     // 3. Delete Article

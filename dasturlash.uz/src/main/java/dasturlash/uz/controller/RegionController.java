@@ -1,7 +1,7 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
-import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
+import dasturlash.uz.dtos.region.RegionRequestDTO;
+import dasturlash.uz.dtos.region.RegionResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.service.RegionService;

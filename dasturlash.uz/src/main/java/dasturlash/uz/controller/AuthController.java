@@ -1,11 +1,10 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.TokenDTO;
-import dasturlash.uz.dtos.TokenRefreshRequestDTO;
-import dasturlash.uz.dtos.profileDTOs.JwtResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.LoginDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
+import dasturlash.uz.dtos.token.TokenDTO;
+import dasturlash.uz.dtos.token.TokenRefreshRequestDTO;
+import dasturlash.uz.dtos.auth.JwtResponseDTO;
+import dasturlash.uz.dtos.auth.LoginDTO;
+import dasturlash.uz.dtos.auth.RegistrationDTO;
 import dasturlash.uz.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

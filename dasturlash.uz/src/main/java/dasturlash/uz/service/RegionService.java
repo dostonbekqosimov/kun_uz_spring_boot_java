@@ -1,7 +1,7 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.regionDTOs.RegionResponseDTO;
-import dasturlash.uz.dtos.regionDTOs.RegionRequestDTO;
+import dasturlash.uz.dtos.region.RegionResponseDTO;
+import dasturlash.uz.dtos.region.RegionRequestDTO;
 import dasturlash.uz.entity.Region;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;

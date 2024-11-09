@@ -1,10 +1,10 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeRequestDTO;
-import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
+import dasturlash.uz.dtos.articleType.ArticleTypeRequestDTO;
+import dasturlash.uz.dtos.articleType.ArticleTypeResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
-import dasturlash.uz.service.ArticleTypeService;
+import dasturlash.uz.service.article.ArticleTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;

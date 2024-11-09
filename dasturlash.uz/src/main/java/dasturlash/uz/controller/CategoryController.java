@@ -1,7 +1,7 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
-import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
+import dasturlash.uz.dtos.category.CategoryRequestDTO;
+import dasturlash.uz.dtos.category.CategoryResponseDTO;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.repository.customInterfaces.CustomMapperInterface;
 import dasturlash.uz.service.CategoryService;

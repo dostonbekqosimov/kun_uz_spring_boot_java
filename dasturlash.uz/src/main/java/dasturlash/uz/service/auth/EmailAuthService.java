@@ -4,8 +4,8 @@ import dasturlash.uz.enums.EmailStatus;
 import org.springframework.stereotype.Service;
 
 
-import dasturlash.uz.dtos.profileDTOs.MessageDTO;
-import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
+import dasturlash.uz.dtos.auth.MessageDTO;
+import dasturlash.uz.dtos.auth.RegistrationDTO;
 import dasturlash.uz.entity.EmailHistory;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Status;

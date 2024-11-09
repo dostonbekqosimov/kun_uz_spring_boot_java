@@ -1,16 +1,11 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.JwtDTO;
-import dasturlash.uz.dtos.profileDTOs.*;
+import dasturlash.uz.dtos.profile.*;
 import dasturlash.uz.entity.Profile;
-import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
-import dasturlash.uz.exceptions.ForbiddenException;
 import dasturlash.uz.repository.ProfileRepository;
-import dasturlash.uz.util.JwtUtil;
-import dasturlash.uz.util.MD5Util;
 import dasturlash.uz.util.SpringSecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

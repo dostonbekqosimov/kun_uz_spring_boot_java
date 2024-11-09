@@ -1,6 +1,5 @@
 package dasturlash.uz.repository;
 
-import dasturlash.uz.entity.ArticleType;
 import dasturlash.uz.entity.Profile;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -10,8 +9,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {

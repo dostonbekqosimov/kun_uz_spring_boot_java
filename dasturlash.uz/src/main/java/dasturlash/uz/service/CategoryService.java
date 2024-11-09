@@ -1,7 +1,7 @@
 package dasturlash.uz.service;
 
-import dasturlash.uz.dtos.categoryDTOS.CategoryResponseDTO;
-import dasturlash.uz.dtos.categoryDTOS.CategoryRequestDTO;
+import dasturlash.uz.dtos.category.CategoryResponseDTO;
+import dasturlash.uz.dtos.category.CategoryRequestDTO;
 import dasturlash.uz.entity.Category;
 import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.exceptions.DataExistsException;

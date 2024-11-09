@@ -1,6 +1,6 @@
 package dasturlash.uz.service.auth;
 
-import dasturlash.uz.dtos.profileDTOs.MessageDTO;
+import dasturlash.uz.dtos.auth.MessageDTO;
 import dasturlash.uz.entity.EmailHistory;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.EmailStatus;

@@ -1,21 +1,13 @@
 package dasturlash.uz.controller;
 
-import dasturlash.uz.dtos.JwtDTO;
-import dasturlash.uz.dtos.articleTypeDTOs.ArticleTypeResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.*;
-import dasturlash.uz.enums.Role;
-import dasturlash.uz.exceptions.ForbiddenException;
+import dasturlash.uz.dtos.profile.*;
 import dasturlash.uz.service.ProfileService;
-import dasturlash.uz.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/profile")

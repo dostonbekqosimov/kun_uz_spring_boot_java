@@ -1,7 +1,7 @@
 package dasturlash.uz.service.auth;
 
-import dasturlash.uz.dtos.mockSmsDtos.SmsMessageDto;
-import dasturlash.uz.dtos.mockSmsDtos.SmsResponseDto;
+import dasturlash.uz.dtos.mockSMS.SmsMessageDto;
+import dasturlash.uz.dtos.mockSMS.SmsResponseDto;
 import dasturlash.uz.entity.SmsHistory;
 import dasturlash.uz.enums.SmsStatus;
 import lombok.extern.slf4j.Slf4j;

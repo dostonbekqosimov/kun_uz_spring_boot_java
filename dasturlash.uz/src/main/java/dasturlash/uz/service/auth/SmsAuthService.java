@@ -1,6 +1,6 @@
 package dasturlash.uz.service.auth;
 
-import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
+import dasturlash.uz.dtos.auth.RegistrationDTO;
 import dasturlash.uz.enums.SmsStatus;
 import org.springframework.stereotype.Service;
 

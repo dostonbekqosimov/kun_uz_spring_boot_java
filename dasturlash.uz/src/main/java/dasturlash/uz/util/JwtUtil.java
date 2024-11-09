@@ -1,12 +1,11 @@
 package dasturlash.uz.util;
 
-import dasturlash.uz.dtos.JwtDTO;
+import dasturlash.uz.dtos.token.JwtDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
-import java.security.SignatureException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;

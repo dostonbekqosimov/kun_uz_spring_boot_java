@@ -1,12 +1,11 @@
 package dasturlash.uz.service.auth;
 
-import dasturlash.uz.config.CustomUserDetails;
-import dasturlash.uz.dtos.AttachDTO;
-import dasturlash.uz.dtos.JwtDTO;
-import dasturlash.uz.dtos.TokenDTO;
-import dasturlash.uz.dtos.profileDTOs.JwtResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.ProfileResponseDTO;
-import dasturlash.uz.dtos.profileDTOs.RegistrationDTO;
+import dasturlash.uz.config.security.CustomUserDetails;
+import dasturlash.uz.dtos.token.JwtDTO;
+import dasturlash.uz.dtos.token.TokenDTO;
+import dasturlash.uz.dtos.auth.JwtResponseDTO;
+import dasturlash.uz.dtos.profile.ProfileResponseDTO;
+import dasturlash.uz.dtos.auth.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
