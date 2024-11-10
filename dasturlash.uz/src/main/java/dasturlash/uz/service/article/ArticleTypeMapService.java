@@ -59,10 +59,7 @@ public class ArticleTypeMapService {
 
     public List<String> getNArticleIdListByTypeId(Long articleTypeId, Integer count) {
 
-        List<String> articleIdList = articleTypeMapRepository.findAllArticleIdListByTypeId(articleTypeId, PageRequest.of(0, count));
 
-
-
-        return articleIdList;
+        return articleTypeMapRepository.findAllArticleIdListByTypeId(articleTypeId, PageRequest.of(0, count));
     }
 }

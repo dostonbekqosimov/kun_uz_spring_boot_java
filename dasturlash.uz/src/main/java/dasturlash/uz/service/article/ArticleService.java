@@ -12,14 +12,20 @@ import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
 import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
 import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ArticleService {
 
     @Autowired
@@ -168,7 +174,7 @@ public class ArticleService {
         List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, count);
 
 
-        return getArticlesByIds(articleIdList, articleTypeId);
+        return getArticlesByArticleIds(articleIdList, articleTypeId);
     }
 
 
@@ -189,23 +195,21 @@ public class ArticleService {
     }
 
 
-    public List<ArticleFullInfoDTO> getLastNArticlesByTypesExcluding(Long articleTypeId, String excludeArticleId, Integer offset) {
+    public List<ArticleShortInfoDTO> getLastNArticlesByTypesExcluding(Long articleTypeId, String excludeArticleId, Integer count) {
 
 //        List<ArticleFullInfoMapper> result = articleRepository
-//                .findLastNArticlesByTypesExcluding(ArticleStatus.PUBLISHED, excludeArticleId, PageRequest.of(0, offset));
+//                .findLastNArticlesByTypesExcluding(ArticleStatus.PUBLISHED, excludeArticleId, PageRequest.of(0, count));
 
-        List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, offset);
-
-        List<ArticleFullInfoDTO> articleList = getArticlesByArticleIdListExcluding(articleIdList, excludeArticleId, articleTypeId);
+        List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, count);
 
 
-        return articleList;
+        return getArticlesByArticleIdListExcluding(articleIdList, excludeArticleId, articleTypeId);
     }
 
 
-    public List<ArticleShortInfoDTO> getMostReadArticles(Integer offset) {
+    public List<ArticleShortInfoDTO> getMostReadArticles(Integer count) {
 
-        List<ArticleShortInfoMapper> mostReadArticles = articleRepository.findTopNMostReadArticles(offset, PageRequest.of(0, offset));
+        List<ArticleShortInfoMapper> mostReadArticles = articleRepository.findTopNMostReadArticles(count, PageRequest.of(0, count));
 
 //        if (mostReadArticles.isEmpty()){
 //            throw new ArticleNotFoundException()
@@ -220,9 +224,40 @@ public class ArticleService {
     }
 
 
-    public List<ArticleShortInfoDTO> getLast5ArticlesByTypesAndRegion(List<String> types, String regionKey) {
-        return List.of();
+    public List<ArticleShortInfoDTO> getLast5ArticlesByTypeAndRegion(Long articleTypeId, Long regionId, Integer count) {
+
+
+        // Validate input parameters
+        if (articleTypeId == null || regionId == null) {
+            throw new IllegalArgumentException("Article type ID and region ID must not be null");
+        }
+
+            // Get articles in a single query if possible
+            List<ArticleShortInfoMapper> articles = articleRepository.findTopNByArticleTypeAndRegionAndStatus(
+                    ArticleStatus.PUBLISHED,
+                    articleTypeId,
+                    regionId,
+                    PageRequest.of(0, count));
+
+            // Log warning if fewer articles found than expected
+            if (articles.isEmpty()) {
+                log.warn("No articles found for type={} and region={}", articleTypeId, regionId);
+                return Collections.emptyList();
+            }
+
+            if (articles.size() <count) {
+                log.info("Found only {} articles out of {} requested for type={} and region={}",
+                        articles.size(), count, articleTypeId, regionId);
+            }
+
+            // Transform to DTOs
+            return articles.stream()
+                    .map(this::toArticleShortInfoDTO)
+                    .collect(Collectors.toList());
+
+
     }
+
 
 
     public List<ArticleShortInfoDTO> getArticlesByRegion(String regionKey, int page, int size) {
@@ -282,6 +317,61 @@ public class ArticleService {
         return dto;
     }
 
+
+    public Article getArticleEntityById(String articleId) {
+        return articleRepository.findByIdAndVisibleTrue(articleId)
+                .orElseThrow(() -> new DataNotFoundException("Article with id: " + articleId + " not found"));
+    }
+
+    public List<ArticleShortInfoDTO> getArticlesByArticleIds(List<String> articleIdList, Long articleTypeId) {
+        // Fetch articles in bulk using a repository or DAO
+        List<ArticleShortInfoMapper> articles = articleRepository.findAllArticlesByIdList(ArticleStatus.PUBLISHED, articleIdList);
+
+        if (articles.isEmpty()) {
+
+            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
+
+        }
+
+        // Convert entities to DTOs
+        return articles.stream().map(item -> toArticleShortInfoDTO(item)).toList();
+    }
+
+    public List<ArticleShortInfoDTO> getArticlesByArticleIdListExcluding(List<String> articleIdList, String excludeArticleId, Long articleTypeId) {
+        // Fetch articles in bulk using a repository or DAO
+        List<ArticleShortInfoMapper> articles = articleRepository.findAllArticlesByIdListExcluding(ArticleStatus.PUBLISHED, excludeArticleId, articleIdList);
+
+        if (articles.isEmpty()) {
+
+            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
+
+        }
+
+        // Convert entities to DTOs
+        return articles.stream().map(this::toArticleShortInfoDTO).toList();
+    }
+
+    private ArticleShortInfoDTO toArticleShortInfoDTO(ArticleShortInfoMapper article) {
+        ArticleShortInfoDTO dto = new ArticleShortInfoDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setDescription(article.getDescription());
+        dto.setImage(attachService.getDto(article.getImageId()));
+        dto.setPublishedDate(article.getPublishedDate());
+        return dto;
+    }
+
+    // not completed yet [...]
+    private ArticleFullInfoDTO toArticleFullInfoDTO(ArticleFullInfoMapper article) {
+        ArticleFullInfoDTO dto = new ArticleFullInfoDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setDescription(article.getDescription());
+        dto.setContent(article.getContent());
+        dto.setSharedCount(article.getSharedCount());
+        return dto;
+    }
+
     private ArticleDTO toArticleDTO(Article article) {
 
         ArticleDTO articleDTO = new ArticleDTO();
@@ -296,57 +386,4 @@ public class ArticleService {
         return articleDTO;
     }
 
-
-    public Article getArticleEntityById(String articleId) {
-        return articleRepository.findByIdAndVisibleTrue(articleId)
-                .orElseThrow(() -> new DataNotFoundException("Article with id: " + articleId + " not found"));
-    }
-
-    public List<ArticleShortInfoDTO> getArticlesByIds(List<String> articleIdList, Long articleTypeId) {
-        // Fetch articles in bulk using a repository or DAO
-        List<ArticleShortInfoMapper> articles = articleRepository.findAllArticlesByIdList(ArticleStatus.PUBLISHED, articleIdList);
-
-        if (articles.isEmpty()) {
-
-            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
-
-        }
-
-        // Convert entities to DTOs
-        return articles.stream().map(item -> toArticleShortInfoDTO(item)).toList();
-    }
-
-    public List<ArticleFullInfoDTO> getArticlesByArticleIdListExcluding(List<String> articleIdList, String excludeArticleId, Long articleTypeId) {
-        // Fetch articles in bulk using a repository or DAO
-        List<ArticleFullInfoMapper> articles = articleRepository.findAllArticlesByIdListExcluding(ArticleStatus.PUBLISHED, excludeArticleId, articleIdList);
-
-        if (articles.isEmpty()) {
-
-            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
-
-        }
-
-        // Convert entities to DTOs
-        return articles.stream().map(item -> toArticleFullInfoDTO(item)).toList();
-    }
-
-    private ArticleShortInfoDTO toArticleShortInfoDTO(ArticleShortInfoMapper article) {
-        ArticleShortInfoDTO dto = new ArticleShortInfoDTO();
-        dto.setId(article.getId());
-        dto.setTitle(article.getTitle());
-        dto.setDescription(article.getDescription());
-        dto.setImage(attachService.getDto(article.getImageId()));
-        dto.setPublishedDate(article.getPublishedDate());
-        return dto;
-    }
-
-    private ArticleFullInfoDTO toArticleFullInfoDTO(ArticleFullInfoMapper article) {
-        ArticleFullInfoDTO dto = new ArticleFullInfoDTO();
-        dto.setId(article.getId());
-        dto.setTitle(article.getTitle());
-        dto.setDescription(article.getDescription());
-        dto.setContent(article.getContent());
-        dto.setSharedCount(article.getSharedCount());
-        return dto;
-    }
 }

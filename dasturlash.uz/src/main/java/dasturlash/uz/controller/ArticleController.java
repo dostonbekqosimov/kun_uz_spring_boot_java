@@ -103,14 +103,10 @@ public class ArticleController {
     }
 
     // 9. Get Last 4 Articles By Types and exclude given article id
-    // shu short info return qilish kerak lekin men adashib full ga yozibman o'zgartirgim kelmadi
-    // chala bo'lgan:    ArticleFullInfo id(uuid),title,description,content,shared_count,
-    // region(key,name),category(key,name),published_date,view_count,like_count,
-    //tagList(name)
     @GetMapping("/type/exclude/{articleId}")
-    public ResponseEntity<List<ArticleFullInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String articleId, @RequestParam("type") Long type) {
+    public ResponseEntity<List<ArticleShortInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String articleId, @RequestParam("type") Long type) {
 
-            List<ArticleFullInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, articleId, 4);
+            List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, articleId, 4);
             return ResponseEntity.ok(articles);
 
     }
@@ -124,7 +120,7 @@ public class ArticleController {
 
     }
 
-    // 11. Get Last 4 Articles By TagName
+    // 11. Get Last 4 Articles By TagName [...]
     @GetMapping("/tags/{tagName}")
     public ResponseEntity<List<ArticleShortInfoDTO>> getLast4ArticlesByTagName(@PathVariable String tagName) {
 
@@ -133,11 +129,11 @@ public class ArticleController {
 
     }
 
-    // 12. Get Last 5 Articles By Types And By Region Key
+    // 12. Get Last 5 Articles By Type And By Region Key
     @GetMapping("/type/region")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getLast5ArticlesByTypesAndRegion(@RequestParam List<String> types, @RequestParam String regionKey) {
+    public ResponseEntity<List<ArticleShortInfoDTO>> getLast5ArticlesByTypesAndRegion(@RequestParam("articleTypeId") Long type, @RequestParam("regionId") Long regionId) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByTypesAndRegion(types, regionKey);
+            List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByTypeAndRegion(type, regionId, 5);
             return ResponseEntity.ok(articles);
 
     }

@@ -1,6 +1,7 @@
 package dasturlash.uz.repository;
 
 import dasturlash.uz.dtos.article.ArticleFullInfoDTO;
+import dasturlash.uz.dtos.article.ArticleShortInfoDTO;
 import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
@@ -23,7 +24,6 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
                                                             List<String> excludeIdList, Pageable pageable);
 
 
-
     Optional<Article> findByIdAndVisibleTrue(String articleId);
 
 
@@ -38,13 +38,26 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
            "ORDER BY a.createdDate DESC")
     List<ArticleShortInfoMapper> findAllArticlesByIdList(@Param("status") ArticleStatus published, @Param("articleIdList") List<String> articleIdList);
 
-    @Query("select a.id as id,  a.title as title, a.description as description, a.content as content, a.sharedCount as sharedCount " +
+    @Query("select a.id as id,  a.title as title, a.description as description, a.imageId AS imageId, a.publishedDate AS publishedDate " +
            "FROM Article a WHERE a.id IN :articleIdList AND a.id != :excludeArticleId AND a.status = :status AND a.visible = true " +
            "ORDER BY a.createdDate DESC")
-    List<ArticleFullInfoMapper> findAllArticlesByIdListExcluding(@Param("status") ArticleStatus status,
-                                                              @Param("excludeArticleId") String excludeArticleId,
-                                                              @Param("articleIdList") List<String> articleIdList);
+    List<ArticleShortInfoMapper> findAllArticlesByIdListExcluding(@Param("status") ArticleStatus status,
+                                                                  @Param("excludeArticleId") String excludeArticleId,
+                                                                  @Param("articleIdList") List<String> articleIdList);
 
     @Query("SELECT a FROM Article a ORDER BY a.viewCount DESC")
     List<ArticleShortInfoMapper> findTopNMostReadArticles(Integer offset, Pageable pageable);
+
+
+    @Query("SELECT a FROM Article a " +
+           "WHERE a.status = :status " +
+           "AND a.regionId = :regionId " +
+           "AND a.id IN (SELECT atm.articleId FROM ArticleTypeMapping atm WHERE atm.articleTypeId = :articleTypeId) " +
+           "ORDER BY a.createdDate DESC")
+    List<ArticleShortInfoMapper> findTopNByArticleTypeAndRegionAndStatus(
+            @Param("status") ArticleStatus status,
+            @Param("articleTypeId") Long articleTypeId,
+            @Param("regionId") Long regionId,
+            Pageable pageable);
+
 }
