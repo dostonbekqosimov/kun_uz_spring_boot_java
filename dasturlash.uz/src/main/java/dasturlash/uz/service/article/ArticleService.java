@@ -203,8 +203,15 @@ public class ArticleService {
     }
 
 
-    public List<ArticleShortInfoDTO> getMostReadArticles(int count) {
-        return List.of();
+    public List<ArticleShortInfoDTO> getMostReadArticles(Integer offset) {
+
+        List<ArticleShortInfoMapper> mostReadArticles = articleRepository.findTopNMostReadArticles(offset, PageRequest.of(0, offset));
+
+//        if (mostReadArticles.isEmpty()){
+//            throw new ArticleNotFoundException()
+//        }
+
+        return mostReadArticles.stream().map(this::toArticleShortInfoDTO).toList();
     }
 
 

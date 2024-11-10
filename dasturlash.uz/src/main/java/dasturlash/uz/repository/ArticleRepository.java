@@ -44,4 +44,7 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
     List<ArticleFullInfoMapper> findAllArticlesByIdListExcluding(@Param("status") ArticleStatus status,
                                                               @Param("excludeArticleId") String excludeArticleId,
                                                               @Param("articleIdList") List<String> articleIdList);
+
+    @Query("SELECT a FROM Article a ORDER BY a.viewCount DESC")
+    List<ArticleShortInfoMapper> findTopNMostReadArticles(Integer offset, Pageable pageable);
 }

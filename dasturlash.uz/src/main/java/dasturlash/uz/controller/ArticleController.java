@@ -104,6 +104,9 @@ public class ArticleController {
 
     // 9. Get Last 4 Articles By Types and exclude given article id
     // shu short info return qilish kerak lekin men adashib full ga yozibman o'zgartirgim kelmadi
+    // chala bo'lgan:    ArticleFullInfo id(uuid),title,description,content,shared_count,
+    // region(key,name),category(key,name),published_date,view_count,like_count,
+    //tagList(name)
     @GetMapping("/type/exclude/{articleId}")
     public ResponseEntity<List<ArticleFullInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String articleId, @RequestParam("type") Long type) {
 
@@ -112,7 +115,7 @@ public class ArticleController {
 
     }
 
-    // 10. Get 4 most read articles
+    // 10. Get 4 most read articles [done]
     @GetMapping("/most-read")
     public ResponseEntity<List<ArticleShortInfoDTO>> getMostReadArticles() {
 

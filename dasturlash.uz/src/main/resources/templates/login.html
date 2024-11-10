@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CORS</title>
+</head>
+<body>
+
+<h1>CORS request example</h1>
+<p>Bu namuna <code>http://localhost:8080/auth/login</code> api-ga oddiy POST request jo'natadi va natijani ko'rsatadi.</p>
+<button onclick="makeRequest()"> Make POST request</button>
+<br>
+<br>
+<div id="result">Request Result</div>
+</body>
+
+
+</html>
+<script>
+
+</script>
+<script>
+    function makeRequest() {
+        var xhttps = new XMLHttpRequest();
+        var body = {
+            login: "dostonqosimiy19@gmail.com",
+            password: "securePassword123"
+        };
+        var jsonBody = JSON.stringify(body);
+
+        xhttps.onreadystatechange = function () {
+            document.getElementById("result").innerText = "Response:\n" + this.responseText;
+        };
+
+        xhttps.open("POST", "http://localhost:8080/auth/login", true);
+        xhttps.setRequestHeader('Content-Type', 'application/json');
+        xhttps.send(jsonBody);
+    }
+</script>
