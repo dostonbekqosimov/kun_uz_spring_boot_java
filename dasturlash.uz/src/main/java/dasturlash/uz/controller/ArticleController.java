@@ -103,10 +103,11 @@ public class ArticleController {
     }
 
     // 9. Get Last 4 Articles By Types and exclude given article id
-    @GetMapping("/type/exclude/{id}")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String id, @RequestParam("type") Long type) {
+    // shu short info return qilish kerak lekin men adashib full ga yozibman o'zgartirgim kelmadi
+    @GetMapping("/type/exclude/{articleId}")
+    public ResponseEntity<List<ArticleFullInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String articleId, @RequestParam("type") Long type) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, id, 4);
+            List<ArticleFullInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, articleId, 4);
             return ResponseEntity.ok(articles);
 
     }

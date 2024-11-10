@@ -11,6 +11,6 @@ public class ArticleFullInfoDTO {
     private String id;
     private String title;
     private String description;
-    private AttachDTO image;
-    private LocalDateTime publishedDate;
+    private String content;
+    private Integer sharedCount;
 }

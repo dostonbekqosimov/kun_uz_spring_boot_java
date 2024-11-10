@@ -8,6 +8,7 @@ import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.exceptions.ArticleNotFoundException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ArticleRepository;
+import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
 import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
 import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
@@ -167,10 +168,7 @@ public class ArticleService {
         List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, count);
 
 
-        List<ArticleShortInfoDTO> articleList = getArticlesByIds(articleIdList, articleTypeId);
-
-
-        return articleList;
+        return getArticlesByIds(articleIdList, articleTypeId);
     }
 
 
@@ -187,16 +185,21 @@ public class ArticleService {
     public ArticleFullInfoDTO getArticleByIdAndLang(String id, String lang) {
 
 
-
-
         return null;
     }
 
 
-    public List<ArticleShortInfoDTO> getLastNArticlesByTypesExcluding(Long type, String excludeId, int count) {
+    public List<ArticleFullInfoDTO> getLastNArticlesByTypesExcluding(Long articleTypeId, String excludeArticleId, Integer offset) {
+
+//        List<ArticleFullInfoMapper> result = articleRepository
+//                .findLastNArticlesByTypesExcluding(ArticleStatus.PUBLISHED, excludeArticleId, PageRequest.of(0, offset));
+
+        List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, offset);
+
+        List<ArticleFullInfoDTO> articleList = getArticlesByArticleIdListExcluding(articleIdList, excludeArticleId, articleTypeId);
 
 
-        return List.of();
+        return articleList;
     }
 
 
@@ -286,15 +289,6 @@ public class ArticleService {
         return articleDTO;
     }
 
-    private ArticleShortInfoDTO toArticleShortInfoDTO(ArticleShortInfoMapper article) {
-        ArticleShortInfoDTO dto = new ArticleShortInfoDTO();
-        dto.setId(article.getId());
-        dto.setTitle(article.getTitle());
-        dto.setDescription(article.getDescription());
-        dto.setImage(attachService.getDto(article.getImageId()));
-        dto.setPublishedDate(article.getPublishedDate());
-        return dto;
-    }
 
     public Article getArticleEntityById(String articleId) {
         return articleRepository.findByIdAndVisibleTrue(articleId)
@@ -313,5 +307,39 @@ public class ArticleService {
 
         // Convert entities to DTOs
         return articles.stream().map(item -> toArticleShortInfoDTO(item)).toList();
+    }
+
+    public List<ArticleFullInfoDTO> getArticlesByArticleIdListExcluding(List<String> articleIdList, String excludeArticleId, Long articleTypeId) {
+        // Fetch articles in bulk using a repository or DAO
+        List<ArticleFullInfoMapper> articles = articleRepository.findAllArticlesByIdListExcluding(ArticleStatus.PUBLISHED, excludeArticleId, articleIdList);
+
+        if (articles.isEmpty()) {
+
+            throw new ArticleNotFoundException("No articles found for the specified type: " + articleTypeId);
+
+        }
+
+        // Convert entities to DTOs
+        return articles.stream().map(item -> toArticleFullInfoDTO(item)).toList();
+    }
+
+    private ArticleShortInfoDTO toArticleShortInfoDTO(ArticleShortInfoMapper article) {
+        ArticleShortInfoDTO dto = new ArticleShortInfoDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setDescription(article.getDescription());
+        dto.setImage(attachService.getDto(article.getImageId()));
+        dto.setPublishedDate(article.getPublishedDate());
+        return dto;
+    }
+
+    private ArticleFullInfoDTO toArticleFullInfoDTO(ArticleFullInfoMapper article) {
+        ArticleFullInfoDTO dto = new ArticleFullInfoDTO();
+        dto.setId(article.getId());
+        dto.setTitle(article.getTitle());
+        dto.setDescription(article.getDescription());
+        dto.setContent(article.getContent());
+        dto.setSharedCount(article.getSharedCount());
+        return dto;
     }
 }

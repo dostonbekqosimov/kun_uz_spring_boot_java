@@ -2,7 +2,7 @@ package dasturlash.uz.repository.customInterfaces;
 
 import java.time.LocalDateTime;
 
-// Bu ishlamedi chunki biz image uchun alohida table ochganmiz; [...]
+// Bu ishlamedi chunki biz image uchun alohida table ochganmiz; [done]
 public interface ArticleShortInfoMapper {
 
     String getId();
@@ -10,6 +10,7 @@ public interface ArticleShortInfoMapper {
     String getTitle();
 
     String getDescription();
+
 
     String getImageId();
 
