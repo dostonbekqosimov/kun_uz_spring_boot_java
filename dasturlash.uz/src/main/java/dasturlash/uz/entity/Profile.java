@@ -21,6 +21,7 @@ public class Profile {
     private String email;
     private String phone;
     private String password;
+
     private Boolean visible;
 
     @Enumerated(value = EnumType.STRING)

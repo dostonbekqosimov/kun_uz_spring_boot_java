@@ -161,7 +161,7 @@ public class ArticleService {
     }
 
 
-    // Oxirgi qo'shilganlarni olmayabdi nimagadur
+    // Oxirgi qo'shilganlarni olmayabdi nimagadur [done]
     public List<ArticleShortInfoDTO> getLastNArticlesByTypes(Long articleTypeId, Integer count) {
 
         List<String> articleIdList = articleTypeMapService.getNArticleIdListByTypeId(articleTypeId, count);
@@ -185,11 +185,17 @@ public class ArticleService {
 
 
     public ArticleFullInfoDTO getArticleByIdAndLang(String id, String lang) {
+
+
+
+
         return null;
     }
 
 
-    public List<ArticleShortInfoDTO> getLastNArticlesByTypesExcluding(List<String> types, String excludeId, int count) {
+    public List<ArticleShortInfoDTO> getLastNArticlesByTypesExcluding(Long type, String excludeId, int count) {
+
+
         return List.of();
     }
 
