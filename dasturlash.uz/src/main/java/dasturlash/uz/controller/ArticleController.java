@@ -5,6 +5,7 @@ import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.service.article.ArticleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,8 +37,8 @@ public class ArticleController {
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<ArticleDTO> updateArticle(@PathVariable String id, @RequestBody @Valid ArticleRequestDTO request) {
 
-            ArticleDTO updatedArticle = articleService.updateArticle(id, request);
-            return ResponseEntity.ok(updatedArticle);
+        ArticleDTO updatedArticle = articleService.updateArticle(id, request);
+        return ResponseEntity.ok(updatedArticle);
 
     }
 
@@ -53,8 +54,8 @@ public class ArticleController {
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<Void> deleteArticle(@PathVariable String id) {
 
-            articleService.deleteArticle(id);
-            return ResponseEntity.noContent().build(); // No Content
+        articleService.deleteArticle(id);
+        return ResponseEntity.noContent().build(); // No Content
 
     }
 
@@ -62,8 +63,8 @@ public class ArticleController {
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ROLE_PUBLISHER')")
     public ResponseEntity<ArticleDTO> changeStatus(@PathVariable String id, @RequestBody ArticleStatusRequestDTO statusRequest) {
-            ArticleDTO updatedStatus = articleService.changeStatus(id, statusRequest.getStatus());
-            return ResponseEntity.ok(updatedStatus);
+        ArticleDTO updatedStatus = articleService.changeStatus(id, statusRequest.getStatus());
+        return ResponseEntity.ok(updatedStatus);
 
     }
 
@@ -77,10 +78,10 @@ public class ArticleController {
 
     // 6. Get Last 3 Articles By Types
     @GetMapping("/type/latest/three")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getLast3ArticlesByTypes(@RequestParam("typeId")  Long articleTypeId) {
+    public ResponseEntity<List<ArticleShortInfoDTO>> getLast3ArticlesByTypes(@RequestParam("typeId") Long articleTypeId) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypes(articleTypeId, 3);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypes(articleTypeId, 3);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -88,8 +89,8 @@ public class ArticleController {
     @GetMapping("/exclude")
     public ResponseEntity<List<ArticleShortInfoDTO>> getLast8ArticlesExcluding(@RequestParam("excludedIds") List<String> excludedIds) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLast8ArticlesExcluding(excludedIds);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLast8ArticlesExcluding(excludedIds);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -97,8 +98,8 @@ public class ArticleController {
     @GetMapping("/{id}/lang/{lang}")
     public ResponseEntity<ArticleFullInfoDTO> getArticleByIdAndLang(@PathVariable String articleId, @PathVariable String lang) {
 
-            ArticleFullInfoDTO article = articleService.getArticleByIdAndLang(articleId, lang);
-            return ResponseEntity.ok(article);
+        ArticleFullInfoDTO article = articleService.getArticleByIdAndLang(articleId, lang);
+        return ResponseEntity.ok(article);
 
     }
 
@@ -106,8 +107,8 @@ public class ArticleController {
     @GetMapping("/type/exclude/{articleId}")
     public ResponseEntity<List<ArticleShortInfoDTO>> getLast4ArticlesByTypesExcluding(@PathVariable String articleId, @RequestParam("type") Long type) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, articleId, 4);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLastNArticlesByTypesExcluding(type, articleId, 4);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -115,8 +116,8 @@ public class ArticleController {
     @GetMapping("/most-read")
     public ResponseEntity<List<ArticleShortInfoDTO>> getMostReadArticles() {
 
-            List<ArticleShortInfoDTO> articles = articleService.getMostReadArticles(4);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getMostReadArticles(4);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -124,8 +125,8 @@ public class ArticleController {
     @GetMapping("/tags/{tagName}")
     public ResponseEntity<List<ArticleShortInfoDTO>> getLast4ArticlesByTagName(@PathVariable String tagName) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLast4ArticlesByTagName(tagName);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLast4ArticlesByTagName(tagName);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -133,39 +134,39 @@ public class ArticleController {
     @GetMapping("/type/region")
     public ResponseEntity<List<ArticleShortInfoDTO>> getLast5ArticlesByTypesAndRegion(@RequestParam("articleTypeId") Long type, @RequestParam("regionId") Long regionId) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByTypeAndRegion(type, regionId, 5);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByTypeAndRegion(type, regionId, 5);
+        return ResponseEntity.ok(articles);
 
     }
 
     // 13. Get Article list by Region Key (Pagination)
-    @GetMapping("/region/{regionKey}")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getArticlesByRegion(@PathVariable String regionKey,
-                                                                      @RequestParam int page,
-                                                                      @RequestParam int size) {
+    @GetMapping("/region/{regionId}")
+    public ResponseEntity<PageImpl<ArticleShortInfoDTO>> getArticlesByRegion(@PathVariable Long regionId,
+                                                                             @RequestParam(name = "page", defaultValue = "1") int page,
+                                                                             @RequestParam(name = "size", defaultValue = "5") int size) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getArticlesByRegion(regionKey, page, size);
-            return ResponseEntity.ok(articles);
+        PageImpl<ArticleShortInfoDTO> articles = articleService.getArticlesByRegion(regionId, page - 1, size);
+        return ResponseEntity.ok(articles);
 
     }
 
-    // 14. Get Last 5 Articles By Category Key
+    // 14. Get Last 5 Articles By Category ID
     @GetMapping("/category/latest")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getLast5ArticlesByCategory() {
+    public ResponseEntity<List<ArticleShortInfoDTO>> getLast5ArticlesByCategory(@RequestParam("categoryId") Long categoryId) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByCategory();
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getLast5ArticlesByCategoryId(categoryId, 5);
+        return ResponseEntity.ok(articles);
 
     }
 
-    // 15. Get Article By Category Key (Pagination)
-    @GetMapping("/category/{categoryKey}")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getArticlesByCategory(@PathVariable String categoryKey,
-                                                                        @RequestParam int page,
-                                                                        @RequestParam int size) {
+    // 15. Get Article By Category ID (Pagination)
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ArticleShortInfoDTO>> getArticlesByCategory(@PathVariable Long categoryId,
+                                                                           @RequestParam int page,
+                                                                           @RequestParam int size) {
 
-            List<ArticleShortInfoDTO> articles = articleService.getArticlesByCategory(categoryKey, page, size);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.getArticlesByCategory(categoryId, page, size);
+        return ResponseEntity.ok(articles);
 
     }
 
@@ -173,8 +174,8 @@ public class ArticleController {
     @PostMapping("/{id}/view")
     public ResponseEntity<Void> increaseArticleViewCount(@PathVariable String id) {
 
-            articleService.increaseArticleViewCount(id);
-            return ResponseEntity.ok().build();
+        articleService.increaseArticleViewCount(id);
+        return ResponseEntity.ok().build();
 
     }
 
@@ -182,31 +183,31 @@ public class ArticleController {
     @PostMapping("/{id}/share")
     public ResponseEntity<Void> increaseShareViewCount(@PathVariable String id) {
 
-            articleService.increaseShareViewCount(id);
-            return ResponseEntity.ok().build();
+        articleService.increaseShareViewCount(id);
+        return ResponseEntity.ok().build();
 
     }
 
     // 18. Filter Articles with Pagination
     @GetMapping("/filter")
     public ResponseEntity<List<ArticleShortInfoDTO>> filterArticles(@RequestParam(required = false) String id,
-                                                                 @RequestParam(required = false) String title,
-                                                                 @RequestParam(required = false) String regionId,
-                                                                 @RequestParam(required = false) String categoryId,
-                                                                 @RequestParam(required = false) String createdDateFrom,
-                                                                 @RequestParam(required = false) String createdDateTo,
-                                                                 @RequestParam(required = false) String publishedDateFrom,
-                                                                 @RequestParam(required = false) String publishedDateTo,
-                                                                 @RequestParam(required = false) String moderatorId,
-                                                                 @RequestParam(required = false) String publisherId,
-                                                                 @RequestParam(required = false) String status,
-                                                                 @RequestParam int page,
-                                                                 @RequestParam int size) {
+                                                                    @RequestParam(required = false) String title,
+                                                                    @RequestParam(required = false) String regionId,
+                                                                    @RequestParam(required = false) String categoryId,
+                                                                    @RequestParam(required = false) String createdDateFrom,
+                                                                    @RequestParam(required = false) String createdDateTo,
+                                                                    @RequestParam(required = false) String publishedDateFrom,
+                                                                    @RequestParam(required = false) String publishedDateTo,
+                                                                    @RequestParam(required = false) String moderatorId,
+                                                                    @RequestParam(required = false) String publisherId,
+                                                                    @RequestParam(required = false) String status,
+                                                                    @RequestParam int page,
+                                                                    @RequestParam int size) {
 
-            List<ArticleShortInfoDTO> articles = articleService.filterArticles(id, title, regionId, categoryId,
-                    createdDateFrom, createdDateTo, publishedDateFrom, publishedDateTo, moderatorId,
-                    publisherId, status, page, size);
-            return ResponseEntity.ok(articles);
+        List<ArticleShortInfoDTO> articles = articleService.filterArticles(id, title, regionId, categoryId,
+                createdDateFrom, createdDateTo, publishedDateFrom, publishedDateTo, moderatorId,
+                publisherId, status, page, size);
+        return ResponseEntity.ok(articles);
 
     }
 }

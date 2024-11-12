@@ -7,6 +7,8 @@ import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
 import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -60,4 +62,11 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
             @Param("regionId") Long regionId,
             Pageable pageable);
 
+
+    @Query("Select a from Article a where a.regionId =?1")
+    Page<ArticleShortInfoMapper> findAllByRegionId(Long regionId, Pageable pageable);
+
+    @Query(" select a.id as id,  a.title as title, a.description as description, a.imageId as imageId, a.publishedDate as publishedDate " +
+           "  From Article a where a.categoryId =?1 and a.status =?2 and a.visible = true order by a.createdDate desc")
+    List<ArticleShortInfoMapper> findLastNArticlesByCategoryId(Long categoryId, ArticleStatus status, Pageable pageable);
 }

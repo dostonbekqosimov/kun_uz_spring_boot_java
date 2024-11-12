@@ -14,8 +14,9 @@ import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -232,45 +233,64 @@ public class ArticleService {
             throw new IllegalArgumentException("Article type ID and region ID must not be null");
         }
 
-            // Get articles in a single query if possible
-            List<ArticleShortInfoMapper> articles = articleRepository.findTopNByArticleTypeAndRegionAndStatus(
-                    ArticleStatus.PUBLISHED,
-                    articleTypeId,
-                    regionId,
-                    PageRequest.of(0, count));
+        // Get articles in a single query if possible
+        List<ArticleShortInfoMapper> articles = articleRepository.findTopNByArticleTypeAndRegionAndStatus(
+                ArticleStatus.PUBLISHED,
+                articleTypeId,
+                regionId,
+                PageRequest.of(0, count));
 
-            // Log warning if fewer articles found than expected
-            if (articles.isEmpty()) {
-                log.warn("No articles found for type={} and region={}", articleTypeId, regionId);
-                return Collections.emptyList();
-            }
+        // Log warning if fewer articles found than expected
+        if (articles.isEmpty()) {
+            log.warn("No articles found for type={} and region={}", articleTypeId, regionId);
+            return Collections.emptyList();
+        }
 
-            if (articles.size() <count) {
-                log.info("Found only {} articles out of {} requested for type={} and region={}",
-                        articles.size(), count, articleTypeId, regionId);
-            }
+        if (articles.size() < count) {
+            log.info("Found only {} articles out of {} requested for type={} and region={}",
+                    articles.size(), count, articleTypeId, regionId);
+        }
 
-            // Transform to DTOs
-            return articles.stream()
-                    .map(this::toArticleShortInfoDTO)
-                    .collect(Collectors.toList());
+        // Transform to DTOs
+        return articles.stream()
+                .map(this::toArticleShortInfoDTO)
+                .collect(Collectors.toList());
 
 
     }
 
 
+    public PageImpl<ArticleShortInfoDTO> getArticlesByRegion(Long regionId, int page, int size) {
 
-    public List<ArticleShortInfoDTO> getArticlesByRegion(String regionKey, int page, int size) {
-        return List.of();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        Page<ArticleShortInfoMapper> result = articleRepository.findAllByRegionId(regionId, pageRequest);
+
+        List<ArticleShortInfoDTO> response = result.stream().map(this::toArticleShortInfoDTO).toList();
+
+
+        return new PageImpl<>(response, pageRequest, result.getTotalElements());
     }
 
 
-    public List<ArticleShortInfoDTO> getLast5ArticlesByCategory() {
-        return List.of();
+    public List<ArticleShortInfoDTO> getLast5ArticlesByCategoryId(Long categoryId, Integer count) {
+
+        if (categoryId == null || categoryId <= 0){
+            throw new IllegalArgumentException("categoryId cannot be null or negative");
+        }
+
+        List<ArticleShortInfoMapper> result = articleRepository
+                .findLastNArticlesByCategoryId(categoryId, ArticleStatus.PUBLISHED, PageRequest.of(0, count));
+
+        if (result.isEmpty()){
+            throw new ArticleNotFoundException("Article with categoryId: " + categoryId + " not found");
+        }
+
+        return result.stream().map(this::toArticleShortInfoDTO).toList();
     }
 
 
-    public List<ArticleShortInfoDTO> getArticlesByCategory(String categoryKey, int page, int size) {
+    public List<ArticleShortInfoDTO> getArticlesByCategory(Long categoryKey, int page, int size) {
         return List.of();
     }
 
