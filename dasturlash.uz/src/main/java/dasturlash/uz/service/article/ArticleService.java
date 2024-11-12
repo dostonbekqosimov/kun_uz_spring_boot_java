@@ -290,8 +290,18 @@ public class ArticleService {
     }
 
 
-    public List<ArticleShortInfoDTO> getArticlesByCategory(Long categoryKey, int page, int size) {
-        return List.of();
+    public PageImpl<ArticleShortInfoDTO> getArticlesByCategory(Long categoryId, int page, int size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        Page<ArticleShortInfoMapper> result = articleRepository.findAllByCategoryId(categoryId, pageRequest);
+
+        List<ArticleShortInfoDTO> response = result.stream().map(this::toArticleShortInfoDTO).toList();
+
+
+        return new PageImpl<>(response, pageRequest, result.getTotalElements());
+
+
     }
 
 

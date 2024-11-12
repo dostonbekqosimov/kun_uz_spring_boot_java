@@ -69,4 +69,7 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
     @Query(" select a.id as id,  a.title as title, a.description as description, a.imageId as imageId, a.publishedDate as publishedDate " +
            "  From Article a where a.categoryId =?1 and a.status =?2 and a.visible = true order by a.createdDate desc")
     List<ArticleShortInfoMapper> findLastNArticlesByCategoryId(Long categoryId, ArticleStatus status, Pageable pageable);
+
+    @Query("Select a from Article a where a.categoryId =?1")
+    Page<ArticleShortInfoMapper> findAllByCategoryId(Long categoryId, PageRequest pageRequest);
 }

@@ -161,11 +161,11 @@ public class ArticleController {
 
     // 15. Get Article By Category ID (Pagination)
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<ArticleShortInfoDTO>> getArticlesByCategory(@PathVariable Long categoryId,
-                                                                           @RequestParam int page,
-                                                                           @RequestParam int size) {
+    public ResponseEntity<PageImpl<ArticleShortInfoDTO>> getArticlesByCategory(@PathVariable Long categoryId,
+                                                                               @RequestParam(name = "page", defaultValue = "1") int page,
+                                                                               @RequestParam(name = "size", defaultValue = "5") int size) {
 
-        List<ArticleShortInfoDTO> articles = articleService.getArticlesByCategory(categoryId, page, size);
+        PageImpl<ArticleShortInfoDTO> articles = articleService.getArticlesByCategory(categoryId, page - 1, size);
         return ResponseEntity.ok(articles);
 
     }
