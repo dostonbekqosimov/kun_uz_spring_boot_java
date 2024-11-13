@@ -1,10 +1,13 @@
 package dasturlash.uz.controller;
 
+import dasturlash.uz.dtos.ArticleFilterDTO;
 import dasturlash.uz.dtos.article.*;
 import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.service.article.ArticleService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +47,9 @@ public class ArticleController {
 
     // buni o'zim yozganman talablarda yo'q
     @GetMapping("/{articleId}")
-    public ArticleDTO getArticleById(@PathVariable("articleId") String articleId) {
+    public ArticleDTO getArticleById(@PathVariable("articleId") String articleId, HttpServletRequest request) {
 
-        return articleService.getArticleById(articleId);
+        return articleService.getArticleById(articleId, request);
     }
 
     // 3. Delete Article
@@ -172,41 +175,27 @@ public class ArticleController {
 
     // 16. Increase Article View Count
     @PostMapping("/{id}/view")
-    public ResponseEntity<Void> increaseArticleViewCount(@PathVariable String id) {
-
-        articleService.increaseArticleViewCount(id);
+    public ResponseEntity<Void> increaseArticleViewCount(@PathVariable String id, HttpServletRequest request) {
+        articleService.increaseArticleViewCount(id, request);
         return ResponseEntity.ok().build();
-
     }
 
     // 17. Increase Share View Count
     @PostMapping("/{id}/share")
-    public ResponseEntity<Void> increaseShareViewCount(@PathVariable String id) {
-
-        articleService.increaseShareViewCount(id);
+    public ResponseEntity<Void> increaseShareViewCount(@PathVariable String id, HttpServletRequest request) {
+        articleService.increaseShareViewCount(id, request);
         return ResponseEntity.ok().build();
-
     }
+
+
 
     // 18. Filter Articles with Pagination
     @GetMapping("/filter")
-    public ResponseEntity<List<ArticleShortInfoDTO>> filterArticles(@RequestParam(required = false) String id,
-                                                                    @RequestParam(required = false) String title,
-                                                                    @RequestParam(required = false) String regionId,
-                                                                    @RequestParam(required = false) String categoryId,
-                                                                    @RequestParam(required = false) String createdDateFrom,
-                                                                    @RequestParam(required = false) String createdDateTo,
-                                                                    @RequestParam(required = false) String publishedDateFrom,
-                                                                    @RequestParam(required = false) String publishedDateTo,
-                                                                    @RequestParam(required = false) String moderatorId,
-                                                                    @RequestParam(required = false) String publisherId,
-                                                                    @RequestParam(required = false) String status,
-                                                                    @RequestParam int page,
-                                                                    @RequestParam int size) {
+    public ResponseEntity<Page<ArticleShortInfoDTO>> filterArticles(@RequestBody ArticleFilterDTO filterDTO,
+                                                                    @RequestParam(name = "page", defaultValue = "1") int page,
+                                                                    @RequestParam(name = "size", defaultValue = "5") int size) {
 
-        List<ArticleShortInfoDTO> articles = articleService.filterArticles(id, title, regionId, categoryId,
-                createdDateFrom, createdDateTo, publishedDateFrom, publishedDateTo, moderatorId,
-                publisherId, status, page, size);
+        Page<ArticleShortInfoDTO> articles = articleService.filterArticles(filterDTO, page, size);
         return ResponseEntity.ok(articles);
 
     }
