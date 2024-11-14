@@ -67,6 +67,11 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return ResponseEntity.status(404).body(e.getMessage());
     }
 
+    @ExceptionHandler(SomethingWentWrongException.class)
+    public ResponseEntity<?> exceptionHandler(SomethingWentWrongException e) {
+        return ResponseEntity.status(500).body(e.getMessage());
+    }
+
 
 
 

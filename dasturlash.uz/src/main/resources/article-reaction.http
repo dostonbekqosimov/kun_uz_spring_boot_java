@@ -1,0 +1,3 @@
+### GET request to example server
+POST http://localhost:8080/like/remove-reaction?articleId=3fe7cdcc-91a9-4dd4-b5f5-03107d6391ca
+

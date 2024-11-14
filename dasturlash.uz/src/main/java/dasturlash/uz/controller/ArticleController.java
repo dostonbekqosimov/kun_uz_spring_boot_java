@@ -47,7 +47,7 @@ public class ArticleController {
 
     // buni o'zim yozganman talablarda yo'q
     @GetMapping("/{articleId}")
-    public ArticleDTO getArticleById(@PathVariable("articleId") String articleId, HttpServletRequest request) {
+    public ArticleFullInfoDTO getArticleById(@PathVariable("articleId") String articleId, HttpServletRequest request) {
 
         return articleService.getArticleById(articleId, request);
     }
@@ -173,12 +173,7 @@ public class ArticleController {
 
     }
 
-    // 16. Increase Article View Count
-    @PostMapping("/{id}/view")
-    public ResponseEntity<Void> increaseArticleViewCount(@PathVariable String id, HttpServletRequest request) {
-        articleService.increaseArticleViewCount(id, request);
-        return ResponseEntity.ok().build();
-    }
+
 
     // 17. Increase Share View Count
     @PostMapping("/{id}/share")

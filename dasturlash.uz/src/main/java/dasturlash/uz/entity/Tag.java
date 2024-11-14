@@ -15,9 +15,6 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "article_id")
-    private String articleId; // UUID type in database
-
 
 
     @Column(nullable = false)

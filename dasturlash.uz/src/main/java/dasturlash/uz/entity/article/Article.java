@@ -27,6 +27,8 @@ public class Article {
     private Integer sharedCount;
     private Boolean visible;
     private Integer viewCount;
+    private Integer likeCount;
+    private Integer dislikeCount;
     private LocalDateTime createdDate;
     private LocalDateTime publishedDate;
 
@@ -63,6 +65,7 @@ public class Article {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", insertable = false, updatable = false)
     private Profile publisher;
+
 
     @Column(name = "publisher_id")
     private Long publisherId;

@@ -15,7 +15,7 @@ public class JwtUtil {
 //    private static final long tokenLiveTime = 1000 * 3600 * 24; // 1-day
 //    private static final long refreshTokenLiveTime = 1000L * 3600 * 24 * 30;
 
-    private static final long tokenLiveTime = 1000 * 6000; // 30 seconds
+    private static final long tokenLiveTime = 1000 * 600000; // 30 seconds
     private static final long refreshTokenLiveTime = 1000L * 60 * 30;
     private static final String secretKey = "veryLongSecretmazgillattayevlasharaaxmojonjinnijonsurbetbekkiydirhonuxlatdibekloxovdangasabekochkozjonduxovmashaynikmaydagapchishularnioqiganbolsangizgapyoqaniqsizmazgi";
 
