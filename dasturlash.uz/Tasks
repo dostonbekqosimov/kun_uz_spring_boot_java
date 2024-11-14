@@ -22,13 +22,13 @@
 
 12. 8th api ArticleController should be finished [...]
 
-13. Trigger nima? It should be learned [...]
+13. Trigger nima? It should be learned [done]
 
-14. Article view count uchun Triggerni ishlatish kerak. [...]
+14. Article view count uchun Triggerni ishlatish kerak. [done]
 
-15. JWT tokenlardan user, publisher, moderator idlarni olish kerak, shuni service methodlariga qo'shish kerak
+15. JWT tokenlardan user, publisher, moderator idlarni olish kerak, shuni service methodlariga qo'shish kerak [done] (buni spring security orqali qildik)
 
-16. articleId va IpAdress bo'yicha db da bormi yoki yo'qmi shuniyam funksiyada tekshirish kerak(Sinab ko'rish kerak )
+16. articleId va IpAdress bo'yicha db da bormi yoki yo'qmi shuniyam funksiyada tekshirish kerak(Sinab ko'rish kerak ) [...]
 
 
 #### homework for 2.11.2024 ####

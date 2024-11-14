@@ -98,8 +98,8 @@ public class ArticleController {
     }
 
     // 8. Get Article By Id And Lang  [???]
-    @GetMapping("/{id}/lang/{lang}")
-    public ResponseEntity<ArticleFullInfoDTO> getArticleByIdAndLang(@PathVariable String articleId, @PathVariable String lang) {
+    @GetMapping("/{articleId}/lang/{lang}")
+    public ResponseEntity<ArticleFullInfoDTO> getArticleByIdAndLang(@PathVariable("articleId") String articleId, @PathVariable String lang) {
 
         ArticleFullInfoDTO article = articleService.getArticleByIdAndLang(articleId, lang);
         return ResponseEntity.ok(article);
