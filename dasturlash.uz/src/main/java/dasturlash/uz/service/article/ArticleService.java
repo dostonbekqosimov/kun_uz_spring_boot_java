@@ -1,19 +1,25 @@
 package dasturlash.uz.service.article;
 
+import dasturlash.uz.dtos.ArticleFilterDTO;
 import dasturlash.uz.dtos.AttachDTO;
 import dasturlash.uz.dtos.article.*;
 import dasturlash.uz.dtos.articleType.ArticleTypeResponseDTO;
 import dasturlash.uz.entity.article.Article;
+import dasturlash.uz.entity.article.ArticleViewRecord;
 import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.exceptions.ArticleNotFoundException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ArticleRepository;
+import dasturlash.uz.repository.ArticleViewRecordRepository;
+import dasturlash.uz.repository.custom.CustomArticleRepository;
 import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
 import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
 import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,18 +31,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dasturlash.uz.util.HeaderUtil.getUserIP;
+
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ArticleService {
 
-    @Autowired
-    private ArticleRepository articleRepository;
-    @Autowired
-    private ArticleTypeMapService articleTypeMapService;
-    @Autowired
-    private ArticleAttacheService articleAttacheService;
-    @Autowired
-    private AttachService attachService;
+
+    private final ArticleRepository articleRepository;
+    private final ArticleTypeMapService articleTypeMapService;
+    private final ArticleAttacheService articleAttacheService;
+    private final AttachService attachService;
+    private final CustomArticleRepository customArticleRepository;
+    private final ArticleViewRecordRepository articleViewRecordRepository;
+    private final ArticleViewRecordService articleViewRecordService;
 
 
     public ArticleDTO createArticle(ArticleRequestDTO request) {
@@ -184,7 +193,7 @@ public class ArticleService {
         List<ArticleShortInfoMapper> result = articleRepository
                 .findLast8ArticlesExcluding(ArticleStatus.PUBLISHED, excludedIds, PageRequest.of(0, 8));
 
-        return result.stream().map(item -> toArticleShortInfoDTO(item)).toList();
+        return result.stream().map(this::toArticleShortInfoDTO).toList();
 
     }
 
@@ -275,14 +284,14 @@ public class ArticleService {
 
     public List<ArticleShortInfoDTO> getLast5ArticlesByCategoryId(Long categoryId, Integer count) {
 
-        if (categoryId == null || categoryId <= 0){
+        if (categoryId == null || categoryId <= 0) {
             throw new IllegalArgumentException("categoryId cannot be null or negative");
         }
 
         List<ArticleShortInfoMapper> result = articleRepository
                 .findLastNArticlesByCategoryId(categoryId, ArticleStatus.PUBLISHED, PageRequest.of(0, count));
 
-        if (result.isEmpty()){
+        if (result.isEmpty()) {
             throw new ArticleNotFoundException("Article with categoryId: " + categoryId + " not found");
         }
 
@@ -304,47 +313,45 @@ public class ArticleService {
 
     }
 
+    // Method to increase the view count, but only once per IP per article
+//    public void increaseViewCount(String id, String ip) {
+//        if (articleViewRecordService.increaseViewCount(id, ip)) {
+//            articleRepository.updateViewCount(id);
+//        }
+//    }
 
-    public void increaseArticleViewCount(String articleId) {
+
+
+    public void increaseShareViewCount(String articleId, HttpServletRequest request) {
+        String ipAddress = getUserIP(request);
+
+        articleViewRecordService.increaseShareCount(articleId, ipAddress);
+    }
+
+    public Page<ArticleShortInfoDTO> filterArticles(ArticleFilterDTO filterDTO, int page, int size) {
+
+        return customArticleRepository.filter(filterDTO, page, size);
+
 
     }
 
+    public ArticleFullInfoDTO getArticleById(String articleId, HttpServletRequest request) {
 
-    public void increaseShareViewCount(String articleId) {
-
-    }
-
-
-    public List<ArticleShortInfoDTO> filterArticles(String id, String title, String regionId, String categoryId, String createdDateFrom, String createdDateTo, String publishedDateFrom, String publishedDateTo, String moderatorId, String publisherId, String status, int page, int size) {
-        return List.of();
-    }
-
-    public ArticleDTO getArticleById(String articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(() -> {
-            throw new RuntimeException("Article not found");
-        });
-
-        ArticleDTO dto = new ArticleDTO();
-        dto.setId(article.getId());
-        dto.setTitle(article.getTitle());
-        dto.setDescription(article.getDescription());
-        dto.setContent(article.getContent());
-        dto.setRegionId(article.getRegionId());
-        dto.setCategoryId(article.getCategoryId());
+        String ipAddress = getUserIP(request);
 
 
-        // getting photo ids and urls by post id from ArticleAttachService
-        List<AttachDTO> attachDTOList = articleAttacheService.getAttachList(articleId);
 
-        // setting the details of photos in the articles
-        dto.setImageList(attachDTOList);
-
-        List<ArticleTypeResponseDTO> articleTypeList = articleTypeMapService.getArticleTypeList(articleId);
-        dto.setArticleTypeList(articleTypeList);
+        ArticleFullInfoMapper article = articleRepository.findArticleById(articleId);
 
 
-        // returning articleDto with ids and urls of article as well as title and content
-        return dto;
+
+        articleViewRecordService.increaseViewCount(articleId, ipAddress);
+
+
+        return toArticleFullInfoDTO(article);
+
+
+
     }
 
 
@@ -391,16 +398,43 @@ public class ArticleService {
         return dto;
     }
 
-    // not completed yet [...]
+    // not completed yet [done]
     private ArticleFullInfoDTO toArticleFullInfoDTO(ArticleFullInfoMapper article) {
         ArticleFullInfoDTO dto = new ArticleFullInfoDTO();
+
+        // Mapping the fields
         dto.setId(article.getId());
         dto.setTitle(article.getTitle());
         dto.setDescription(article.getDescription());
         dto.setContent(article.getContent());
         dto.setSharedCount(article.getSharedCount());
+        dto.setViewCount(article.getViewCount());
+        dto.setLikeCount(article.getLikeCount());
+        dto.setPublishedDate(article.getPublishedDate());
+
+        // Mapping Region and Category
+        if (article.getRegion() != null) {
+            RegionDTO regionDTO = new RegionDTO();
+            regionDTO.setId(article.getRegion().getId());
+            regionDTO.setName(article.getRegion().getName());
+            dto.setRegion(regionDTO);
+        }
+
+        if (article.getCategory() != null) {
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setId(article.getCategory().getId());
+            categoryDTO.setName(article.getCategory().getName());
+            dto.setCategory(categoryDTO);
+        }
+
+        // Mapping tag list
+        if (article.getTagList() != null && !article.getTagList().isEmpty()) {
+            dto.setTagList(article.getTagList());
+        }
+
         return dto;
     }
+
 
     private ArticleDTO toArticleDTO(Article article) {
 
@@ -415,5 +449,10 @@ public class ArticleService {
 
         return articleDTO;
     }
+
+
+
+
+
 
 }
