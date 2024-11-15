@@ -1,11 +1,8 @@
 package dasturlash.uz.service.article;
 
 import dasturlash.uz.dtos.ArticleFilterDTO;
-import dasturlash.uz.dtos.AttachDTO;
 import dasturlash.uz.dtos.article.*;
-import dasturlash.uz.dtos.articleType.ArticleTypeResponseDTO;
 import dasturlash.uz.entity.article.Article;
-import dasturlash.uz.entity.article.ArticleViewRecord;
 import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.exceptions.ArticleNotFoundException;
 import dasturlash.uz.exceptions.DataNotFoundException;
@@ -17,7 +14,6 @@ import dasturlash.uz.repository.customInterfaces.ArticleShortInfoMapper;
 import dasturlash.uz.service.AttachService;
 import dasturlash.uz.util.SpringSecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -63,7 +59,7 @@ public class ArticleService {
         newArticle.setRegionId(request.getRegionId());
         newArticle.setCategoryId(request.getCategoryId());
         newArticle.setStatus(ArticleStatus.NOT_PUBLISHED);
-        newArticle.setModeratorId(SpringSecurityUtil.getUserId());
+        newArticle.setModeratorId(SpringSecurityUtil.getCurrentUserId());
 
         newArticle.setCreatedDate(LocalDateTime.now());
 
@@ -112,7 +108,7 @@ public class ArticleService {
         oldArticle.setRegionId(request.getRegionId());
         oldArticle.setCategoryId(request.getCategoryId());
         oldArticle.setStatus(ArticleStatus.NOT_PUBLISHED);
-        oldArticle.setModeratorId(SpringSecurityUtil.getUserId());
+        oldArticle.setModeratorId(SpringSecurityUtil.getCurrentUserId());
 
 
         articleRepository.save(oldArticle);

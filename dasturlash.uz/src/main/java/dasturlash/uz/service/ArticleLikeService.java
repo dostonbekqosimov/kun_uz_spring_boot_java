@@ -5,14 +5,13 @@ import dasturlash.uz.enums.ReactionType;
 import dasturlash.uz.exceptions.ArticleNotFoundException;
 import dasturlash.uz.repository.ArticleLikeRepository;
 import dasturlash.uz.repository.ArticleRepository;
-import dasturlash.uz.request.ArticleLikeRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static dasturlash.uz.util.SpringSecurityUtil.getUserId;
+import static dasturlash.uz.util.SpringSecurityUtil.getCurrentUserId;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class ArticleLikeService {
 
 
     public void likeArticle(String articleId) {
-        Long profileId = getUserId();
+        Long profileId = getCurrentUserId();
         Optional<ArticleLike> entity = articleLikeRepository.findByProfileIdAndArticleId(profileId, articleId);
 
         if (entity.isEmpty()) {
@@ -48,7 +47,7 @@ public class ArticleLikeService {
 
     public void dislikeArticle(String articleId) {
 
-        Long profileId = getUserId();
+        Long profileId = getCurrentUserId();
         Optional<ArticleLike> entity = articleLikeRepository.findByProfileIdAndArticleId(profileId, articleId);
 
         if (entity.isPresent()) {
@@ -84,7 +83,7 @@ public class ArticleLikeService {
 
     public void removeLike(String articleId) {
 
-        Long profileId = getUserId();
+        Long profileId = getCurrentUserId();
 
         Optional<ArticleLike> entity = articleLikeRepository.findByProfileIdAndArticleId(profileId, articleId);
 

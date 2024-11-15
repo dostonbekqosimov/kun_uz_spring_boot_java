@@ -19,7 +19,7 @@ public class SpringSecurityUtil {
         return userDetail;
     }
 
-    public static Long getUserId() {
+    public static Long getCurrentUserId() {
         CustomUserDetails userDetail = getCurrentEntity();
 
         return userDetail.getId();
@@ -35,5 +35,12 @@ public class SpringSecurityUtil {
 
         return shortDetail;
 
+    }
+
+    public static Role getCurrentUserRole(){
+
+        CustomUserDetails userDetail = getCurrentEntity();
+
+        return userDetail.getRole();
     }
 }

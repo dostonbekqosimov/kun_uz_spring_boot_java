@@ -1,5 +1,6 @@
 package dasturlash.uz.service;
 
+import dasturlash.uz.dtos.ProfileShortInfoDTO;
 import dasturlash.uz.dtos.profile.*;
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Status;
@@ -70,7 +71,7 @@ public class ProfileService {
 
     public boolean updateProfileDetail(ProfileUpdateOwnDTO requestDTO) {
 
-        Profile profile = getById(SpringSecurityUtil.getUserId());
+        Profile profile = getById(SpringSecurityUtil.getCurrentUserId());
         profile.setName(requestDTO.getName());
         profile.setSurname(requestDTO.getSurname());
         profileRepository.save(profile);
@@ -136,6 +137,8 @@ public class ProfileService {
             }
         }
     }
+
+
 
 
     public Profile getById(Long id) {

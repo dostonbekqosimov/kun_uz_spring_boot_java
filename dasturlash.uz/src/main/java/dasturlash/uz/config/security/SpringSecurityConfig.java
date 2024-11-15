@@ -67,6 +67,7 @@ public class SpringSecurityConfig {
                             .requestMatchers("/post", "/post/**").permitAll()
                             .requestMatchers("/article", "/article/**").permitAll()
                             .requestMatchers("/like/**").hasAnyRole("USER", "ADMIN", "MODERATOR", "PUBLISHER")
+                            .requestMatchers("/comments/article/*/comments").permitAll()
 
 
                             .anyRequest()

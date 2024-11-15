@@ -3,7 +3,7 @@ package dasturlash.uz.repository.customInterfaces;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ArticleFullInfoMapper {
+public interface    ArticleFullInfoMapper {
 
     String getId();
 
