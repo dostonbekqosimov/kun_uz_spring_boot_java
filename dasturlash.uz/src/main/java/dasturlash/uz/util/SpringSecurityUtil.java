@@ -1,6 +1,7 @@
 package dasturlash.uz.util;
 
 import dasturlash.uz.config.security.CustomUserDetails;
+import dasturlash.uz.dtos.ProfileShortInfoDTO;
 import dasturlash.uz.enums.Role;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,18 @@ public class SpringSecurityUtil {
     public static Long getUserId() {
         CustomUserDetails userDetail = getCurrentEntity();
 
-        return userDetail.getId()   ;
+        return userDetail.getId();
+    }
+
+    public static ProfileShortInfoDTO getCurrentUserShortInfo() {
+        CustomUserDetails userDetail = getCurrentEntity();
+
+        ProfileShortInfoDTO shortDetail = new ProfileShortInfoDTO();
+        shortDetail.setProfileId(userDetail.getId());
+        shortDetail.setName(userDetail.getName());
+        shortDetail.setSurname(userDetail.getSurname());
+
+        return shortDetail;
+
     }
 }
