@@ -2,14 +2,13 @@ package dasturlash.uz.controller;
 
 import dasturlash.uz.dtos.ArticleFilterDTO;
 import dasturlash.uz.dtos.article.*;
-import dasturlash.uz.entity.article.Article;
+import dasturlash.uz.service.SavedArticleService;
 import dasturlash.uz.service.article.ArticleService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +17,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/article")
+@RequiredArgsConstructor
 public class ArticleController {
 
-    @Autowired
-    private ArticleService articleService;
+
+    private final ArticleService articleService;
+    private  final SavedArticleService savedArticleService;
 
     // 1. CREATE article
 
@@ -97,7 +98,7 @@ public class ArticleController {
 
     }
 
-    // 8. Get Article By Id And Lang  [???]
+    // 8. Get Article By ID And Lang  [???]
     @GetMapping("/{articleId}/lang/{lang}")
     public ResponseEntity<ArticleFullInfoDTO> getArticleByIdAndLang(@PathVariable("articleId") String articleId, @PathVariable String lang) {
 
@@ -194,4 +195,31 @@ public class ArticleController {
         return ResponseEntity.ok(articles);
 
     }
+
+
+    // SAVED ARTICLE
+
+    // 1. Save Article
+    @PostMapping("/{articleId}/save")
+    public ResponseEntity<Void> saveArticle(@PathVariable String articleId) {
+        savedArticleService.saveArticle(articleId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 2. Remove Saved Article
+    @DeleteMapping("/{articleId}/remove")
+    public ResponseEntity<Void> removeSavedArticle(@PathVariable String articleId) {
+        savedArticleService.removeSavedArticle(articleId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 3. Get Profile Saved Article List
+    @GetMapping("/saved")
+    public ResponseEntity<List<ArticleShortInfoDTO>> getSavedArticles() {
+        List<ArticleShortInfoDTO> articles = savedArticleService.getSavedArticles();
+        return ResponseEntity.ok(articles);
+    }
+
+
+
 }
