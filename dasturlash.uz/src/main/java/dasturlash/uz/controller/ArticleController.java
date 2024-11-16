@@ -2,6 +2,7 @@ package dasturlash.uz.controller;
 
 import dasturlash.uz.dtos.ArticleFilterDTO;
 import dasturlash.uz.dtos.article.*;
+import dasturlash.uz.service.ArticleTagService;
 import dasturlash.uz.service.SavedArticleService;
 import dasturlash.uz.service.article.ArticleService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ArticleController {
 
 
+    private final ArticleTagService articleTagService;
     private final ArticleService articleService;
     private  final SavedArticleService savedArticleService;
 
@@ -220,6 +222,15 @@ public class ArticleController {
         return ResponseEntity.ok(articles);
     }
 
+
+    // Article Tag
+
+    // 1.  Add Tag to Article
+    @PostMapping("/{articleId}/tag/{tagId}")
+    public ResponseEntity<Void> addTagToArticle(@PathVariable String articleId, @PathVariable Long tagId) {
+        articleTagService.addTagToArticle(articleId, tagId);
+        return ResponseEntity.ok().build();
+    }
 
 
 }
