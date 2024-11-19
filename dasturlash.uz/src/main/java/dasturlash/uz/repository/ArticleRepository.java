@@ -1,7 +1,6 @@
 package dasturlash.uz.repository;
 
-import dasturlash.uz.dtos.article.ArticleFullInfoDTO;
-import dasturlash.uz.dtos.article.ArticleShortInfoDTO;
+
 import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.enums.ArticleStatus;
 import dasturlash.uz.repository.customInterfaces.ArticleFullInfoMapper;
@@ -90,12 +89,11 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
                        a.publishedDate AS publishedDate,
                        r.id AS region_key, r.nameUz AS region_name,
                        c.id AS category_key, c.nameUz AS category_name,
-                       t.name AS tagList_name
+                       at.name AS tagList_name
                 FROM Article a
                 LEFT JOIN a.region r
                 LEFT JOIN a.category c
                 LEFT JOIN ArticleTag at ON a.id = at.articleId
-                LEFT JOIN at.tag t
                 WHERE a.id = :articleId
             """)
     ArticleFullInfoMapper findArticleById(@Param("articleId") String articleId);

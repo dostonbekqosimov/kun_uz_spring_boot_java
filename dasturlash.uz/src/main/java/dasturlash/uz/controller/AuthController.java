@@ -55,15 +55,17 @@ public class AuthController {
     @PostMapping("/registration/confirm/sms")
     public ResponseEntity<String> confirmSmsRegistration(
             @RequestParam String phone,
-            @RequestParam String code) {
-        String result = authService.registrationConfirmViaSms(phone, code);
+            @RequestParam String code,
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        String result = authService.registrationConfirmViaSms(phone, code,lang);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/registration/resend/sms")
     public ResponseEntity<String> resendSmsVerification(
-            @RequestParam String phone) {
-        String result = authService.resendConfirmationSms(phone);
+            @RequestParam String phone,
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        String result = authService.resendConfirmationSms(phone, lang);
         return ResponseEntity.ok(result);
     }
 

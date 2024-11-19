@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 attaches
+../dasturlash.uz/src/main/resources/application-local.properties
 
 
 

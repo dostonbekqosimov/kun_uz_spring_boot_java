@@ -1,7 +1,6 @@
 package dasturlash.uz.controller;
 
 
-import dasturlash.uz.request.ArticleLikeRequest;
 import dasturlash.uz.service.ArticleLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;

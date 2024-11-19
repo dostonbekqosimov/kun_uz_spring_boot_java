@@ -17,14 +17,8 @@ public class KunUzDemoApplication {
         SpringApplication.run(KunUzDemoApplication.class, args);
         System.out.println("Running...");
 
-        ArrayList<Integer> arrays = new ArrayList<>(3);
-
-        arrays.add(1);
-        arrays.add(1);
-        arrays.add(1);
-        arrays.add(1);
-
-        System.out.println(arrays);
     }
+
+
 
 }

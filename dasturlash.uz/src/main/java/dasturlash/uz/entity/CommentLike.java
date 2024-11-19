@@ -3,20 +3,21 @@ package dasturlash.uz.entity;
 import dasturlash.uz.entity.article.Article;
 import dasturlash.uz.enums.ReactionType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
-@Table(name = "saved_articles")
-@Getter
-@Setter
-public class SavedArticles {
+@Table(name = "comment_likes")
+public class CommentLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Enumerated(EnumType.STRING)
+    private ReactionType type;
 
     @Column(name = "profile_id")
     private Long profileId;
@@ -24,13 +25,13 @@ public class SavedArticles {
     @JoinColumn(name = "profile_id", updatable = false, insertable = false)
     private Profile profile;
 
-    @Column(name = "article_id")
-    private String articleId;
+    @Column(name = "comment_id")
+    private String commentId;
     @ManyToOne
-    @JoinColumn(name = "article_id", updatable = false, insertable = false)
-    private Article article;
-
-    private Boolean visible;
+    @JoinColumn(name = "comment_id", updatable = false, insertable = false)
+    private Comment comment;
 
     private LocalDateTime createdDate;
+
+    private Boolean visible;
 }

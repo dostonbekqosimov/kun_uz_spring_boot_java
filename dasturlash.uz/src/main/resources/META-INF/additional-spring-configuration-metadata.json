@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "app.domain",
+      "type": "java.lang.String",
+      "description": "Description for app.domain."
+  }
+] }

@@ -2,14 +2,12 @@ package dasturlash.uz.util;
 
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.LanguageEnum;
-import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.repository.ProfileRepository;
-import dasturlash.uz.service.RecourceBundleService;
+import dasturlash.uz.service.ResourceBundleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -17,7 +15,7 @@ import java.util.Optional;
 public class LoginIdentifierService {
 
     private final ProfileRepository profileRepository;
-    private final RecourceBundleService recourceBundleService;
+    private final ResourceBundleService resourceBundleService;
 
 
 
@@ -31,7 +29,7 @@ public class LoginIdentifierService {
         } else if (isPhoneNumber) {
             return getByEmailOrPhone(null, login,lang);
         } else {
-            throw new IllegalArgumentException(recourceBundleService.getMessage("invalid.login.format", lang));
+            throw new IllegalArgumentException(resourceBundleService.getMessage("invalid.login.format", lang));
         }
 
 
@@ -43,7 +41,7 @@ public class LoginIdentifierService {
             Optional<Profile> profileWithEmail = profileRepository.findByEmailAndVisibleTrue(email);
 
             if (profileWithEmail.isEmpty()) {
-                throw new DataNotFoundException(recourceBundleService.getMessage("email.not.found", lang));
+                throw new DataNotFoundException(resourceBundleService.getMessage("email.not.found", lang));
             }
             return profileWithEmail.get();
         }
@@ -51,11 +49,11 @@ public class LoginIdentifierService {
         if (phone != null && !phone.trim().isEmpty()) {
             Optional<Profile> profileWithPhone = profileRepository.findByPhoneAndVisibleTrue(phone);
             if (profileWithPhone.isEmpty()) {
-                throw new DataNotFoundException(recourceBundleService.getMessage("phone.not.found", lang));
+                throw new DataNotFoundException(resourceBundleService.getMessage("phone.not.found", lang));
             }
             return profileWithPhone.get();
         }
 
-        throw new RuntimeException(recourceBundleService.getMessage("something.went.wrong", lang));
+        throw new RuntimeException(resourceBundleService.getMessage("something.went.wrong", lang));
     }
 }

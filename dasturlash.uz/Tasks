@@ -1,20 +1,20 @@
 1. 18-darsdan boshlab ko'rish kerak(Spring Security code uz youtube) [...]
 
-2. Hamma api methodlarga annotation larni qo'shib qo'yish kerak(@PreAuthorize) [done] (except for ArticleController)
+2. Hamma api methodlarga annotation larni qo'shib qo'yish kerak(@PreAuthorize) [done] (except for ArticleController [done])
 
 3. Refresh tokenni o'rganib kun uz ga qo'shish kerak. [done]
 
 4. Password Encoder ni qo'shish kerak(MD5 ni o'rniga)  [done]
 
-5. Article apilarni implement qilish [...]
+5. Article apilarni implement qilish [done]
 
-6. Attach api larni tugatish [...]
+6. Attach api larni tugatish [done]
 
 7. Faqat bitta login lik qilish kerak db ni email, phone degan tablelarni olib tashlash kerak [...]
 
 8. I have to review Attach article after the lesson
 
-9. Post Attach da idlar object ko'rinishida kelmayabdi. [...]
+9. Post Attach da idlar object ko'rinishida kelmayabdi. [done]
 
 10 ArticleType should be changed to Section [...]
 
@@ -39,7 +39,7 @@ h/w  [DONE]
 4. use bycript algoritm instead of md5 (optional)    [DONE]
 
 #### homework for 5.11.2024 ####
-H/w   [...]
+H/w   [done]
 1. Attach  (1,2,3,4,5,6) [Copied from dasturlash uz, I have to review it after the lesson]
 2. Compress image
 3. Donwload

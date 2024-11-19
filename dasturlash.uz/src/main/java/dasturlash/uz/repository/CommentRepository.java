@@ -34,5 +34,26 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
             "WHERE c.articleId = :articleId AND c.visible = true " )
     PageImpl<CommentMapper> findCommentListByArticleId(@Param("articleId") String articleId, Pageable pageable);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Article SET likeCount = COALESCE(sharedCount, 0) + 1 WHERE id = :articleId")
+    void incrementLikeCount(String articleId);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Article SET likeCount = GREATEST(COALESCE(likeCount, 0) - 1, 0) WHERE id = :articleId")
+    void decrementLikeCount(@Param("articleId") String articleId);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Article SET dislikeCount = COALESCE(dislikeCount, 0) + 1 WHERE id = :articleId")
+    void incrementDislikeCount(@Param("articleId") String articleId);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Article SET dislikeCount = GREATEST(COALESCE(dislikeCount, 0) - 1, 0) WHERE id = :articleId")
+    void decrementDislikeCount(@Param("articleId") String articleId);
 
 }

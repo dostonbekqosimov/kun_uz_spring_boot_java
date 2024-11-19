@@ -11,7 +11,6 @@ public interface ArticleShortInfoMapper {
 
     String getDescription();
 
-
     String getImageId();
 
     LocalDateTime getPublishedDate();
