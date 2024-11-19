@@ -1,6 +1,8 @@
 package dasturlash.uz.service.auth;
 
 import dasturlash.uz.enums.EmailStatus;
+import dasturlash.uz.enums.LanguageEnum;
+import dasturlash.uz.service.RecourceBundleService;
 import org.springframework.stereotype.Service;
 
 
@@ -25,6 +27,8 @@ public class EmailAuthService {
     private final EmailSendingService emailSendingService;
     private final EmailTemplateService emailTemplateService;
     private final MessageHistoryService messageHistoryService;
+    private final RecourceBundleService recourceBundleService;
+
 
     @Value("${registration.confirmation.deadline.minutes}")
     private int confirmationDeadlineMinutes;
@@ -32,7 +36,7 @@ public class EmailAuthService {
     @Value("${registration.max.resend.attempts}")
     private int maxResendAttempts;
 
-    public String registerViaEmail(RegistrationDTO dto, Profile profile) {
+    public String registerViaEmail(RegistrationDTO dto, Profile profile, LanguageEnum lang) {
         profile.setEmail(dto.getLogin());
         profileRepository.save(profile);
 
@@ -51,10 +55,10 @@ public class EmailAuthService {
         emailSendingService.sendMimeMessage(messageDTO, profile);
         // Note: EmailSendingService will handle creating and updating the history
 
-        return "Email verification sent";
+        return recourceBundleService.getMessage("email.confirmation.sent", lang);
     }
 
-    public String confirmEmail(Long id) {
+    public String confirmEmail(Long id, LanguageEnum lang) {
         Profile profile = profileRepository.findByIdAndVisibleTrue(id)
                 .orElseThrow(() -> new DataNotFoundException("Profile not found"));
 
@@ -66,7 +70,7 @@ public class EmailAuthService {
             profile.setStatus(Status.IN_REGISTRATION);
             messageHistoryService.updateEmailStatus(emailHistory, EmailStatus.EXPIRED);
             profileRepository.save(profile);
-            return "Confirmation link has expired. Please request a new confirmation email.";
+            return recourceBundleService.getMessage("email.confirmation.expired", lang);
         }
 
         if (!profile.getStatus().equals(Status.IN_REGISTRATION)) {
@@ -80,7 +84,7 @@ public class EmailAuthService {
         return "Completed";
     }
 
-    public String resendEmailConfirmation(Long id) {
+    public String resendEmailConfirmation(Long id, LanguageEnum lang) {
         Profile profile = profileRepository.findByIdAndVisibleTrue(id)
                 .orElseThrow(() -> new DataNotFoundException("Profile not found"));
 
@@ -91,7 +95,7 @@ public class EmailAuthService {
             messageHistoryService.updateEmailStatus(lastHistory, EmailStatus.FAILED);
             profile.setStatus(Status.BLOCKED);
             profileRepository.save(profile);
-            throw new DataNotFoundException("Maximum resend attempts exceeded. Please contact support.");
+            throw new DataNotFoundException(recourceBundleService.getMessage("email.max.resend.attempts.exceeded", lang));
         }
 
         if (profile.getStatus().equals(Status.ACTIVE)) {
@@ -114,6 +118,6 @@ public class EmailAuthService {
         emailSendingService.sendMimeMessage(messageDTO, profile);
         // Note: EmailSendingService will handle creating and updating the history
 
-        return "New confirmation email sent";
+        return recourceBundleService.getMessage("email.confirmation.resent", lang);
     }
 }

@@ -5,6 +5,7 @@ import dasturlash.uz.dtos.token.TokenRefreshRequestDTO;
 import dasturlash.uz.dtos.auth.JwtResponseDTO;
 import dasturlash.uz.dtos.auth.LoginDTO;
 import dasturlash.uz.dtos.auth.RegistrationDTO;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,28 +21,35 @@ public class AuthController {
 
 
     @PostMapping("/registration")
-    public ResponseEntity<String> registration(@RequestBody @Valid RegistrationDTO dto) {
-        return ResponseEntity.ok(authService.registration(dto));
+    public ResponseEntity<String> registration(@RequestBody @Valid RegistrationDTO dto,
+                                               @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+
+        return ResponseEntity.ok(authService.registration(dto, lang));
     }
 
     @GetMapping("/registration/confirm/{id}")
-    public ResponseEntity<String> registration(@PathVariable Long id) {
-        return ResponseEntity.ok(authService.registrationConfirm(id));
+    public ResponseEntity<String> registration(@PathVariable Long id,
+                                               @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+
+        return ResponseEntity.ok(authService.registrationConfirm(id,  lang));
     }
 
     @GetMapping("/registration/resend/{id}")
-    public ResponseEntity<String> resend(@PathVariable Long id) {
-        return ResponseEntity.ok(authService.resendConfirmationEmail(id));
+    public ResponseEntity<String> resend(@PathVariable Long id,
+                                         @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        return ResponseEntity.ok(authService.resendConfirmationEmail(id, lang));
     }
 
     @PostMapping("/registration/resend/{id}")
-    public ResponseEntity<String> resendConfirmation(@PathVariable Long id) {
-        return ResponseEntity.ok(authService.resendConfirmationEmail(id));
+    public ResponseEntity<String> resendConfirmation(@PathVariable Long id,
+                                                     @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        return ResponseEntity.ok(authService.resendConfirmationEmail(id, lang));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDTO> login(@RequestBody @Valid LoginDTO loginDTO) {
-        return ResponseEntity.ok(authService.login(loginDTO.getLogin(), loginDTO.getPassword()));
+    public ResponseEntity<JwtResponseDTO> login(@RequestBody @Valid LoginDTO loginDTO,
+                                                @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
+        return ResponseEntity.ok(authService.login(loginDTO.getLogin(), loginDTO.getPassword(), lang));
     }
 
     @PostMapping("/registration/confirm/sms")
@@ -61,10 +69,11 @@ public class AuthController {
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenDTO> refreshToken(@Valid @RequestBody TokenRefreshRequestDTO request) {
+    public ResponseEntity<TokenDTO> refreshToken(@Valid @RequestBody TokenRefreshRequestDTO request,
+                                                 @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
         TokenDTO tokenDTO = new TokenDTO();
         tokenDTO.setRefreshToken(request.getRefreshToken());
-        return ResponseEntity.ok(authService.getNewAccessToken(tokenDTO));
+        return ResponseEntity.ok(authService.getNewAccessToken(tokenDTO, lang));
     }
 
 }

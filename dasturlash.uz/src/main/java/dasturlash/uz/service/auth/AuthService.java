@@ -7,17 +7,17 @@ import dasturlash.uz.dtos.auth.JwtResponseDTO;
 import dasturlash.uz.dtos.profile.ProfileResponseDTO;
 import dasturlash.uz.dtos.auth.RegistrationDTO;
 import dasturlash.uz.entity.Profile;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.enums.Role;
 import dasturlash.uz.enums.Status;
 import dasturlash.uz.exceptions.AppBadRequestException;
 import dasturlash.uz.exceptions.DataExistsException;
-import dasturlash.uz.exceptions.DataNotFoundException;
 import dasturlash.uz.exceptions.UnauthorizedException;
 import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.service.AttachService;
+import dasturlash.uz.service.RecourceBundleService;
 import dasturlash.uz.util.JwtUtil;
 import dasturlash.uz.util.LoginIdentifierService;
-import dasturlash.uz.util.MD5Util;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,18 +41,19 @@ public class AuthService {
     private final LoginIdentifierService loginIdentifierService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AttachService attachService;
+    private final RecourceBundleService recourceBundleService;
 
-    public String registration(RegistrationDTO dto) {
+    public String registration(RegistrationDTO dto, LanguageEnum lang) {
         String login = dto.getLogin();
         boolean isEmail = login.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
         boolean isPhoneNumber = login.matches("^\\+?[0-9]{10,15}$");
 
         if (isEmail) {
-            existsByEmailOrPhone(login, null);
+            existsByEmailOrPhone(login, null, lang);
         } else if (isPhoneNumber) {
-            existsByEmailOrPhone(null, login);
+            existsByEmailOrPhone(null, login, lang);
         } else {
-            throw new IllegalArgumentException("Invalid login format. Please provide a valid email or phone number.");
+            throw new IllegalArgumentException(recourceBundleService.getMessage("invalid.login.format", lang));
         }
 
         Profile profile = new Profile();
@@ -68,20 +68,20 @@ public class AuthService {
 
 
         return isEmail ?
-                emailAuthService.registerViaEmail(dto, profile) :
-                smsAuthService.registerViaSms(dto, profile);
+                emailAuthService.registerViaEmail(dto, profile, lang) :
+                smsAuthService.registerViaSms(dto, profile, lang);
     }
 
-    public String registrationConfirm(Long id) {
-        return emailAuthService.confirmEmail(id);
+    public String registrationConfirm(Long id, LanguageEnum lang) {
+        return emailAuthService.confirmEmail(id, lang);
     }
 
     public String registrationConfirmViaSms(String phone, String code) {
         return smsAuthService.confirmSms(phone, code);
     }
 
-    public String resendConfirmationEmail(Long id) {
-        return emailAuthService.resendEmailConfirmation(id);
+    public String resendConfirmationEmail(Long id, LanguageEnum lang) {
+        return emailAuthService.resendEmailConfirmation(id, lang);
     }
 
     public String resendConfirmationSms(String phone) {
@@ -89,12 +89,11 @@ public class AuthService {
     }
 
 
-    public JwtResponseDTO login(String login, String password) {
+    public JwtResponseDTO login(String login, String password, LanguageEnum lang) {
 
 
         Profile entity = profileRepository.findByLoginAndVisibleTrue(login)
-                .orElseThrow(() -> new UnauthorizedException("Login or password is wrong"));
-
+                .orElseThrow(() -> new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang)));
 
 
         try {
@@ -123,17 +122,17 @@ public class AuthService {
 
                 return response;
             }
-            throw new UnauthorizedException("Login or password is wrong");
+            throw new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang));
         } catch (BadCredentialsException e) {
-            throw new UnauthorizedException("Login or password is wrong");
+            throw new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang));
 
         }
     }
 
-    public TokenDTO getNewAccessToken(TokenDTO dto) {
+    public TokenDTO getNewAccessToken(TokenDTO dto, LanguageEnum lang) {
         // First check if refresh token is provided
         if (dto.getRefreshToken() == null || dto.getRefreshToken().trim().isEmpty()) {
-            throw new AppBadRequestException("Refresh token is required");
+            throw new AppBadRequestException(recourceBundleService.getMessage("refresh.token.required", lang));
         }
 
         // Validate the refresh token
@@ -147,14 +146,14 @@ public class AuthService {
 
 
             // Bu yaxshi yechim ekan, keyin email yoki phone ekanligini client taraf anqilarkan
-            Profile profile = loginIdentifierService.identifyInputType(jwtDTO.getLogin());
+            Profile profile = loginIdentifierService.identifyInputType(jwtDTO.getLogin(), lang);
 
 //            Profile profile = profileRepository.findByPhoneOrEmail(jwtDTO.getLogin()).get();
 
 
             // Check if user is still active
             if (!profile.getStatus().equals(Status.ACTIVE)) {
-                throw new UnauthorizedException("User account is not active");
+                throw new UnauthorizedException(recourceBundleService.getMessage("account.not.active", lang));
             }
 
             TokenDTO response = new TokenDTO();
@@ -163,85 +162,26 @@ public class AuthService {
             return response;
 
         } catch (JwtException e) {
-            throw new UnauthorizedException("Invalid refresh token");
+            throw new UnauthorizedException(recourceBundleService.getMessage("refresh.token.invalid", lang));
         }
     }
 
 
-    private ProfileResponseDTO loginByPhone(String login, String password) {
 
-        // Find the user by email
-        Optional<Profile> optional = profileRepository.findByPhoneAndVisibleTrue(login);
-        if (optional.isEmpty()) {
-            throw new DataNotFoundException("Email or password is wrong");
-        }
 
-        Profile entity = optional.get();
-
-        // Check if the password matches
-        if (!entity.getPassword().equals(MD5Util.getMd5(password))) {
-
-            throw new DataNotFoundException("Email or password is wrong");
-        }
-
-        // Check if the profile is active
-        if (!entity.getStatus().equals(Status.ACTIVE)) {
-            throw new DataNotFoundException("Account is not active");
-        }
-
-        ProfileResponseDTO dto = new ProfileResponseDTO();
-        dto.setName(entity.getName());
-        dto.setSurname(entity.getSurname());
-        dto.setEmail(entity.getEmail());
-        dto.setRole(entity.getRole());
-        dto.setAccessToken(JwtUtil.encode(entity.getPhone(), entity.getRole().toString()));
-        return dto;
-    }
-
-    private ProfileResponseDTO loginByEmail(String login, String password) {
-
-        // Find the user by email
-        Optional<Profile> optional = profileRepository.findByEmailAndVisibleTrue(login);
-        if (optional.isEmpty()) {
-            throw new DataNotFoundException("Email or password is wrong");
-
-        }
-
-        Profile entity = optional.get();
-
-        // Check if the password matches
-        if (!entity.getPassword().equals(MD5Util.getMd5(password))) {
-            throw new DataNotFoundException("Email or password is wrong");
-
-        }
-
-        // Check if the profile is active
-        if (!entity.getStatus().equals(Status.ACTIVE)) {
-            throw new DataNotFoundException("Account is not active");
-        }
-
-        ProfileResponseDTO dto = new ProfileResponseDTO();
-        dto.setName(entity.getName());
-        dto.setSurname(entity.getSurname());
-        dto.setEmail(entity.getEmail());
-        dto.setRole(entity.getRole());
-        dto.setAccessToken(JwtUtil.encode(entity.getEmail(), entity.getRole().toString()));
-        return dto;
-    }
-
-    private void existsByEmailOrPhone(String email, String phone) {
+    private void existsByEmailOrPhone(String email, String phone, LanguageEnum lang) {
 
         if (email != null && !email.trim().isEmpty()) {
             boolean isEmailExist = profileRepository.existsByEmailAndVisibleTrue(email);
             if (isEmailExist) {
-                throw new DataExistsException("Profile with email: " + email + " already exists");
+                throw new DataExistsException(recourceBundleService.getMessage("email.exists", lang));
             }
         }
 
         if (phone != null && !phone.trim().isEmpty()) {
             boolean isPhoneExist = profileRepository.existsByPhoneAndVisibleTrue(phone);
             if (isPhoneExist) {
-                throw new DataExistsException("Profile with phone: " + phone + " already exists");
+                throw new DataExistsException(recourceBundleService.getMessage("phone.exists", lang));
             }
         }
     }
