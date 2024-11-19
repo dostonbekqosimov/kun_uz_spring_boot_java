@@ -2,7 +2,7 @@ package dasturlash.uz.service.auth;
 
 import dasturlash.uz.enums.EmailStatus;
 import dasturlash.uz.enums.LanguageEnum;
-import dasturlash.uz.service.RecourceBundleService;
+import dasturlash.uz.service.ResourceBundleService;
 import org.springframework.stereotype.Service;
 
 
@@ -27,7 +27,7 @@ public class EmailAuthService {
     private final EmailSendingService emailSendingService;
     private final EmailTemplateService emailTemplateService;
     private final MessageHistoryService messageHistoryService;
-    private final RecourceBundleService recourceBundleService;
+    private final ResourceBundleService resourceBundleService;
 
 
     @Value("${registration.confirmation.deadline.minutes}")
@@ -55,7 +55,7 @@ public class EmailAuthService {
         emailSendingService.sendMimeMessage(messageDTO, profile);
         // Note: EmailSendingService will handle creating and updating the history
 
-        return recourceBundleService.getMessage("email.confirmation.sent", lang);
+        return resourceBundleService.getMessage("email.confirmation.sent", lang);
     }
 
     public String confirmEmail(Long id, LanguageEnum lang) {
@@ -70,7 +70,7 @@ public class EmailAuthService {
             profile.setStatus(Status.IN_REGISTRATION);
             messageHistoryService.updateEmailStatus(emailHistory, EmailStatus.EXPIRED);
             profileRepository.save(profile);
-            return recourceBundleService.getMessage("email.confirmation.expired", lang);
+            return resourceBundleService.getMessage("email.confirmation.expired", lang);
         }
 
         if (!profile.getStatus().equals(Status.IN_REGISTRATION)) {
@@ -95,7 +95,7 @@ public class EmailAuthService {
             messageHistoryService.updateEmailStatus(lastHistory, EmailStatus.FAILED);
             profile.setStatus(Status.BLOCKED);
             profileRepository.save(profile);
-            throw new DataNotFoundException(recourceBundleService.getMessage("email.max.resend.attempts.exceeded", lang));
+            throw new DataNotFoundException(resourceBundleService.getMessage("email.max.resend.attempts.exceeded", lang));
         }
 
         if (profile.getStatus().equals(Status.ACTIVE)) {
@@ -118,6 +118,6 @@ public class EmailAuthService {
         emailSendingService.sendMimeMessage(messageDTO, profile);
         // Note: EmailSendingService will handle creating and updating the history
 
-        return recourceBundleService.getMessage("email.confirmation.resent", lang);
+        return resourceBundleService.getMessage("email.confirmation.resent", lang);
     }
 }

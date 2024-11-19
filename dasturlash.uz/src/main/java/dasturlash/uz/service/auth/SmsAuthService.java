@@ -1,7 +1,9 @@
 package dasturlash.uz.service.auth;
 
 import dasturlash.uz.dtos.auth.RegistrationDTO;
+import dasturlash.uz.enums.LanguageEnum;
 import dasturlash.uz.enums.SmsStatus;
+import dasturlash.uz.service.ResourceBundleService;
 import org.springframework.stereotype.Service;
 
 // SmsAuthService.java
@@ -26,6 +28,7 @@ public class SmsAuthService {
     private final SmsHistoryRepository smsHistoryRepository;
     private final MockSmsService mockSmsService;
     private final MessageHistoryService messageHistoryService;
+    private final ResourceBundleService resourceBundleService;
 
     @Value("${sms.confirmation.code.length:6}")
     private int smsCodeLength;
@@ -37,7 +40,7 @@ public class SmsAuthService {
     private int smsMaxResendAttempts;
 
 
-    public String registerViaSms(RegistrationDTO dto, Profile profile) {
+    public String registerViaSms(RegistrationDTO dto, Profile profile, LanguageEnum lang) {
         String normalizedPhone = normalizePhoneNumber(dto.getLogin());
         profile.setPhone(normalizedPhone);
         profileRepository.save(profile);
@@ -47,16 +50,17 @@ public class SmsAuthService {
         // Create history record via service
         SmsHistory smsHistory = messageHistoryService.createSmsHistory(normalizedPhone, verificationCode);
 
-        String message = String.format("Your verification code is: %s. Valid for %d minutes.",
-                verificationCode, smsConfirmationDeadlineMinutes);
+        String messagePattern = resourceBundleService.getMessage("sms.confirmation.message", lang);
+        String message = String.format(messagePattern, verificationCode, smsConfirmationDeadlineMinutes);
+
 
         mockSmsService.sendSms(normalizedPhone, message, verificationCode);
         // Note: MockSmsService will handle updating the history status
 
-        return "SMS verification sent";
+        return resourceBundleService.getMessage("sms.confirmation.sent", lang);
     }
 
-    public String confirmSms(String phone, String code) {
+    public String confirmSms(String phone, String code, LanguageEnum lang) {
         String normalizedPhone = normalizePhoneNumber(phone);
         Profile profile = profileRepository.findByPhoneAndVisibleTrue(normalizedPhone)
                 .orElseThrow(() -> new DataNotFoundException("Profile not found"));
@@ -67,22 +71,22 @@ public class SmsAuthService {
         LocalDateTime expiryTime = smsHistory.getCreatedDate().plusMinutes(smsConfirmationDeadlineMinutes);
         if (LocalDateTime.now().isAfter(expiryTime)) {
             messageHistoryService.updateSmsStatus(smsHistory, SmsStatus.EXPIRED);
-            throw new DataNotFoundException("Verification code has expired");
+            throw new DataNotFoundException(resourceBundleService.getMessage("sms.confirmation.code.expired", lang));
         }
 
         if (!smsHistory.getVerificationCode().equals(code)) {
             messageHistoryService.updateSmsStatus(smsHistory, SmsStatus.FAILED);
-            throw new DataNotFoundException("Invalid verification code");
+            throw new DataNotFoundException(resourceBundleService.getMessage("sms.confirmation.code.wrong", lang));
         }
 
         messageHistoryService.updateSmsStatus(smsHistory, SmsStatus.DELIVERED);
         profile.setStatus(Status.ACTIVE);
         profileRepository.save(profile);
 
-        return "Registration confirmed successfully";
+        return resourceBundleService.getMessage("sms.confirmation.success", lang);
     }
 
-    public String resendSmsVerification(String phone) {
+    public String resendSmsVerification(String phone, LanguageEnum lang) {
         String normalizedPhone = normalizePhoneNumber(phone);
         Profile profile = profileRepository.findByPhoneAndVisibleTrue(normalizedPhone)
                 .orElseThrow(() -> new DataNotFoundException("Profile not found"));
@@ -92,14 +96,14 @@ public class SmsAuthService {
 
         if (profile.getStatus().equals(Status.ACTIVE)) {
             messageHistoryService.updateSmsStatus(lastHistory, SmsStatus.FAILED);
-            return "Profile is already active";
+            return resourceBundleService.getMessage("login.profile.already.active", lang);
         }
 
         if (lastHistory.getAttemptCount() >= smsMaxResendAttempts) {
             messageHistoryService.updateSmsStatus(lastHistory, SmsStatus.FAILED);
             profile.setStatus(Status.BLOCKED);
             profileRepository.save(profile);
-            throw new DataNotFoundException("Maximum resend attempts exceeded");
+            throw new DataNotFoundException(resourceBundleService.getMessage("sms.max.resend.attempts.exceeded", lang));
         }
 
         String newVerificationCode = generateVerificationCode();
@@ -109,11 +113,11 @@ public class SmsAuthService {
         newHistory.setAttemptCount(lastHistory.getAttemptCount() + 1);
         messageHistoryService.updateSmsStatus(newHistory, SmsStatus.RESENT);
 
-        String message = String.format("Your new verification code is: %s. Valid for %d minutes.",
-                newVerificationCode, smsConfirmationDeadlineMinutes);
+        String messagePattern = resourceBundleService.getMessage("sms.confirmation.message", lang);
+        String message = String.format(messagePattern, newVerificationCode, smsConfirmationDeadlineMinutes);
         mockSmsService.sendSms(normalizedPhone, message, newVerificationCode);
 
-        return "New verification code sent";
+        return resourceBundleService.getMessage("sms.confirmation.resent", lang);
     }
 
     private String generateVerificationCode() {

@@ -15,7 +15,7 @@ import dasturlash.uz.exceptions.DataExistsException;
 import dasturlash.uz.exceptions.UnauthorizedException;
 import dasturlash.uz.repository.ProfileRepository;
 import dasturlash.uz.service.AttachService;
-import dasturlash.uz.service.RecourceBundleService;
+import dasturlash.uz.service.ResourceBundleService;
 import dasturlash.uz.util.JwtUtil;
 import dasturlash.uz.util.LoginIdentifierService;
 import io.jsonwebtoken.JwtException;
@@ -41,7 +41,7 @@ public class AuthService {
     private final LoginIdentifierService loginIdentifierService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AttachService attachService;
-    private final RecourceBundleService recourceBundleService;
+    private final ResourceBundleService resourceBundleService;
 
     public String registration(RegistrationDTO dto, LanguageEnum lang) {
         String login = dto.getLogin();
@@ -53,7 +53,7 @@ public class AuthService {
         } else if (isPhoneNumber) {
             existsByEmailOrPhone(null, login, lang);
         } else {
-            throw new IllegalArgumentException(recourceBundleService.getMessage("invalid.login.format", lang));
+            throw new IllegalArgumentException(resourceBundleService.getMessage("invalid.login.format", lang));
         }
 
         Profile profile = new Profile();
@@ -76,16 +76,16 @@ public class AuthService {
         return emailAuthService.confirmEmail(id, lang);
     }
 
-    public String registrationConfirmViaSms(String phone, String code) {
-        return smsAuthService.confirmSms(phone, code);
+    public String registrationConfirmViaSms(String phone, String code, LanguageEnum lang) {
+        return smsAuthService.confirmSms(phone, code, lang);
     }
 
     public String resendConfirmationEmail(Long id, LanguageEnum lang) {
         return emailAuthService.resendEmailConfirmation(id, lang);
     }
 
-    public String resendConfirmationSms(String phone) {
-        return smsAuthService.resendSmsVerification(phone);
+    public String resendConfirmationSms(String phone, LanguageEnum lang) {
+        return smsAuthService.resendSmsVerification(phone, lang);
     }
 
 
@@ -93,7 +93,7 @@ public class AuthService {
 
 
         Profile entity = profileRepository.findByLoginAndVisibleTrue(login)
-                .orElseThrow(() -> new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang)));
+                .orElseThrow(() -> new UnauthorizedException(resourceBundleService.getMessage("login.password.wrong", lang)));
 
 
         try {
@@ -122,9 +122,9 @@ public class AuthService {
 
                 return response;
             }
-            throw new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang));
+            throw new UnauthorizedException(resourceBundleService.getMessage("login.password.wrong", lang));
         } catch (BadCredentialsException e) {
-            throw new UnauthorizedException(recourceBundleService.getMessage("login.password.wrong", lang));
+            throw new UnauthorizedException(resourceBundleService.getMessage("login.password.wrong", lang));
 
         }
     }
@@ -132,7 +132,7 @@ public class AuthService {
     public TokenDTO getNewAccessToken(TokenDTO dto, LanguageEnum lang) {
         // First check if refresh token is provided
         if (dto.getRefreshToken() == null || dto.getRefreshToken().trim().isEmpty()) {
-            throw new AppBadRequestException(recourceBundleService.getMessage("refresh.token.required", lang));
+            throw new AppBadRequestException(resourceBundleService.getMessage("refresh.token.required", lang));
         }
 
         // Validate the refresh token
@@ -153,7 +153,7 @@ public class AuthService {
 
             // Check if user is still active
             if (!profile.getStatus().equals(Status.ACTIVE)) {
-                throw new UnauthorizedException(recourceBundleService.getMessage("account.not.active", lang));
+                throw new UnauthorizedException(resourceBundleService.getMessage("account.not.active", lang));
             }
 
             TokenDTO response = new TokenDTO();
@@ -162,7 +162,7 @@ public class AuthService {
             return response;
 
         } catch (JwtException e) {
-            throw new UnauthorizedException(recourceBundleService.getMessage("refresh.token.invalid", lang));
+            throw new UnauthorizedException(resourceBundleService.getMessage("refresh.token.invalid", lang));
         }
     }
 
@@ -174,14 +174,14 @@ public class AuthService {
         if (email != null && !email.trim().isEmpty()) {
             boolean isEmailExist = profileRepository.existsByEmailAndVisibleTrue(email);
             if (isEmailExist) {
-                throw new DataExistsException(recourceBundleService.getMessage("email.exists", lang));
+                throw new DataExistsException(resourceBundleService.getMessage("email.exists", lang));
             }
         }
 
         if (phone != null && !phone.trim().isEmpty()) {
             boolean isPhoneExist = profileRepository.existsByPhoneAndVisibleTrue(phone);
             if (isPhoneExist) {
-                throw new DataExistsException(recourceBundleService.getMessage("phone.exists", lang));
+                throw new DataExistsException(resourceBundleService.getMessage("phone.exists", lang));
             }
         }
     }
