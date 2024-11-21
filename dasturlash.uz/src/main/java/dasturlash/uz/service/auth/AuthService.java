@@ -1,6 +1,6 @@
 package dasturlash.uz.service.auth;
 
-import dasturlash.uz.config.security.CustomUserDetails;
+import dasturlash.uz.security.CustomUserDetails;
 import dasturlash.uz.dtos.token.JwtDTO;
 import dasturlash.uz.dtos.token.TokenDTO;
 import dasturlash.uz.dtos.auth.JwtResponseDTO;
