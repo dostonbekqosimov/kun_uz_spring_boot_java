@@ -27,11 +27,22 @@ public class AuthController {
         return ResponseEntity.ok(authService.registration(dto, lang));
     }
 
-    @GetMapping("/registration/confirm/{id}")
-    public ResponseEntity<String> registration(@PathVariable Long id,
-                                               @RequestHeader(value = "Accept-Language", defaultValue = "uz") LanguageEnum lang) {
-
-        return ResponseEntity.ok(authService.registrationConfirm(id,  lang));
+    @GetMapping("/registration/confirm/{profileId}")
+    public ResponseEntity<String> registrationConfirm(
+            @PathVariable Long profileId,
+            @RequestHeader(value = "Accept-Language", defaultValue = "uz") String languageHeader
+    ) {
+        LanguageEnum lang;
+        try {
+            lang = LanguageEnum.valueOf(
+                    languageHeader.contains(",")
+                            ? languageHeader.split(",")[0].split("-")[0].toLowerCase()
+                            : languageHeader.split("-")[0].toLowerCase()
+            );
+        } catch (Exception e) {
+            lang = LanguageEnum.uz;
+        }
+        return ResponseEntity.ok(authService.registrationConfirm(profileId, lang));
     }
 
     @GetMapping("/registration/resend/{id}")
