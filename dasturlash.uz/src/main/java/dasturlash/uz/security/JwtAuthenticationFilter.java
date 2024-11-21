@@ -1,4 +1,4 @@
-package dasturlash.uz.config.security;
+package dasturlash.uz.security;
 
 import dasturlash.uz.dtos.token.JwtDTO;
 import dasturlash.uz.util.JwtUtil;
