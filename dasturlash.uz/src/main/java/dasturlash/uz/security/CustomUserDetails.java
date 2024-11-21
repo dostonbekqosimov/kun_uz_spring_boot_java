@@ -1,4 +1,4 @@
-package dasturlash.uz.config.security;
+package dasturlash.uz.security;
 
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.enums.Role;

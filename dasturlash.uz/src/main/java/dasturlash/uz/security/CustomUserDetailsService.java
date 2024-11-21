@@ -1,4 +1,4 @@
-package dasturlash.uz.config.security;
+package dasturlash.uz.security;
 
 import dasturlash.uz.entity.Profile;
 import dasturlash.uz.exceptions.UnauthorizedException;
@@ -15,14 +15,13 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private ProfileRepository profileRepository;
-    @Autowired
-    private LoginIdentifierService identifierService;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) {
 
 
-//        Profile profile = identifierService.identifyInputType(username);
+
 
 
         Optional<Profile> optional = profileRepository.findByLoginAndVisibleTrue(username);
@@ -33,9 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Profile profile = optional.get();
 
-
-//        Profile profile1 = profileRepository.findByPhoneOrEmail(username)
-//                .orElseThrow(() -> new DataNotFoundException("Invalid login format. Please provide a valid email or phone number."));
 
         return new CustomUserDetails(profile);
     }
